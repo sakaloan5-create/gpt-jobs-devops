@@ -22,12 +22,12 @@ class ProTradeSDK {
   detectApiUrl() {
     // ⚠️ 部署后修改：替换为你的 Vercel 地址
     // 示例: https://protrade-admin-xxxx.vercel.app/api
-    const https://protrade-admin-6u1m4ksd6-laok74742-specs-projects.vercel.app/api = 'https://YOUR_VERCEL_URL.vercel.app/api';
+    const YOUR_API_URL = 'https://YOUR_VERCEL_URL.vercel.app/api';
     
     if (window.location.hostname === 'localhost') {
       return 'http://localhost:3000/api';
     }
-    return https://protrade-admin-6u1m4ksd6-laok74742-specs-projects.vercel.app/api;
+    return YOUR_API_URL;
   }
   
   getDeviceId() {
