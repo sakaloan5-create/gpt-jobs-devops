@@ -20,11 +20,10 @@ jobs:
     
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
-      with:
-        packages: 'build-tools;33.0.0 platforms;android-33'
     
-    - name: Accept Android licenses
+    - name: Install Android SDK components
       run: |
+        ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.0" "platforms;android-33"
         yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses || true
     
     - name: Generate keystore
