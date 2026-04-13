@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPTJobs Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] } } } }
+</script>
+<style>
+.nav-active { background: #2563eb; color: white; }
+.nav-item { display:flex; align-items:center; padding:0.75rem 1.5rem; color:#cbd5e1; cursor:pointer; }
+.nav-item:hover { background:#1e293b; }
+.tab { display:none; }
+.tab.active { display:block; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<div class="min-h-screen flex">
+  <aside class="w-64 bg-slate-900 text-white flex flex-col">
+    <div class="h-16 flex items-center px-6 font-bold text-lg border-b border-slate-700">GPTJobs Admin</div>
+    <nav class="flex-1 py-4 space-y-1">
+      <div class="nav-item nav-active" onclick="switchTab('jobs', this)"><span class="mr-3">📋</span> 岗位管理</div>
+      <div class="nav-item" onclick="switchTab('countries', this)"><span class="mr-3">🌍</span> 国家配置</div>
+      <div class="nav-item" onclick="switchTab('config', this)"><span class="mr-3">⚙️</span> 应用配置</div>
+    </nav>
+  </aside>
+
+  <main class="flex-1 overflow-auto">
+    <!-- Jobs Tab -->
+    <div id="tab-jobs" class="tab active">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+        <h1 class="font-semibold text-lg">岗位管理</h1>
+        <button onclick="openJobModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 新增岗位</button>
+      </header>
+      <div class="px-8 py-4 bg-white border-b border-slate-200 flex gap-3">
+        <input id="jobSearch" type="text" placeholder="搜索标题" class="px-4 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="jobFilterCountry" class="px-4 py-2 border border-slate-300 rounded-lg text-sm"><option value="">全部国家</option></select>
+        <select id="jobFilterStatus" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">
+          <option value="">全部状态</option>
+          <option value="active">上架</option>
+          <option value="pending">待审核</option>
+          <option value="banned">下架</option>
+        </select>
+      </div>
+      <div class="px-8 py-6">
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
+              <th class="px-5 py-3">岗位</th><th class="px-5 py-3">国家/城市</th><th class="px-5 py-3">薪资</th><th class="px-5 py-3">状态</th><th class="px-5 py-3 text-right">操作</th>
+            </tr></thead>
+            <tbody id="jobTable" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Countries Tab -->
+    <div id="tab-countries" class="tab">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+        <h1 class="font-semibold text-lg">国家配置</h1>
+        <button onclick="openCountryModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 新增国家</button>
+      </header>
+      <div class="px-8 py-6">
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
+              <th class="px-5 py-3">国家代码</th><th class="px-5 py-3">名称</th><th class="px-5 py-3">货币</th><th class="px-5 py-3">兜底顺序</th><th class="px-5 py-3 text-right">操作</th>
+            </tr></thead>
+            <tbody id="countryTable" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Config Tab -->
+    <div id="tab-config" class="tab">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center px-8">
+        <h1 class="font-semibold text-lg">应用配置</h1>
+      </header>
+      <div class="px-8 py-6 max-w-2xl">
+        <form id="configForm" class="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <label class="flex items-center gap-2"><input type="checkbox" id="cfgSearch" class="w-4 h-4"> 开启搜索</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="cfgFilter" class="w-4 h-4"> 开启筛选</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="cfgContact" class="w-4 h-4"> 开启联系</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="cfgReport" class="w-4 h-4"> 开启举报</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="cfgShare" class="w-4 h-4"> 开启分享</label>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-500 mb-1">版本号</label>
+            <input id="cfgVersion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存配置</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Job Modal -->
+<div id="jobModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 id="jobModalTitle" class="text-lg font-semibold">新增岗位</h2>
+      <button onclick="closeJobModal()" class="text-slate-400 hover:text-slate-600 text-2xl">×</button>
+    </div>
+    <form id="jobForm" class="space-y-4">
+      <input type="hidden" id="jobId">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">标题</label><input id="jobTitle" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">公司</label><input id="jobCompany" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">国家</label><select id="jobCountry" required class="w-full border rounded-lg px-3 py-2 text-sm"></select></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">城市</label><input id="jobCity" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">薪资</label><input id="jobSalary" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">类型</label>
+          <select id="jobType" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <option>Part-time</option><option>Full-time</option><option>Contract</option>
+          </select>
+        </div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">联系方式</label>
+          <select id="jobPlatform" class="w-full border rounded-lg px-3 py-2 text-sm">
+            <option>whatsapp</option><option>telegram</option><option>email</option><option>external_url</option>
+          </select>
+        </div>
+        <div class="col-span-2"><label class="block text-xs font-medium text-slate-500 mb-1">联系链接</label><input id="jobLink" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">描述</label><textarea id="jobDesc" rows="3" required class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">要求 (每行一个)</label><textarea id="jobReqs" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">职责 (每行一个)</label><textarea id="jobResp" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">标签 (逗号分隔)</label><input id="jobTags" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" onclick="closeJobModal()" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">取消</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Country Modal -->
+<div id="countryModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl w-full max-w-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 id="countryModalTitle" class="text-lg font-semibold">新增国家</h2>
+      <button onclick="closeCountryModal()" class="text-slate-400 hover:text-slate-600 text-2xl">×</button>
+    </div>
+    <form id="countryForm" class="space-y-4">
+      <input type="hidden" id="countryCodeOrig">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">国家代码</label><input id="countryCode" required class="w-full border rounded-lg px-3 py-2 text-sm uppercase"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">显示名称</label><input id="countryName" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">货币符号</label><input id="countryCurrency" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">客服链接</label><input id="countrySupport" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">兜底国家顺序 (逗号分隔，如 BR,PH,ID)</label><input id="countryFallback" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="button" onclick="closeCountryModal()" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">取消</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+
+// Tabs
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
+  el.classList.add('nav-active');
+  if (name === 'jobs') loadJobs();
+  if (name === 'countries') loadCountries();
+  if (name === 'config') loadConfig();
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    alert(json.message || '请求失败');
+    throw new Error(json.message || '请求失败');
+  }
+  return json;
+}
+
+// Jobs
+let allJobs = [];
+async function loadJobs() {
+  const data = await api('/admin/jobs?page_size=100');
+  allJobs = data.data?.list || [];
+  populateCountryFilter(allJobs);
+  renderJobs();
+}
+function populateCountryFilter(jobs) {
+  const sel = document.getElementById('jobFilterCountry');
+  const existing = sel.value;
+  const codes = [...new Set(jobs.map(j => j.country).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">全部国家</option>' + codes.map(c => `<option value="${c}">${c}</option>`).join('');
+  sel.value = existing;
+  const countrySel = document.getElementById('jobCountry');
+  countrySel.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+function renderJobs() {
+  const term = document.getElementById('jobSearch').value.toLowerCase();
+  const c = document.getElementById('jobFilterCountry').value;
+  const s = document.getElementById('jobFilterStatus').value;
+  const tbody = document.getElementById('jobTable');
+  const filtered = allJobs.filter(j => {
+    if (c && j.country !== c) return false;
+    if (s && j.status !== s) return false;
+    if (term && !j.title.toLowerCase().includes(term)) return false;
+    return true;
+  });
+  const badge = { active:'bg-emerald-100 text-emerald-700', pending:'bg-amber-100 text-amber-700', banned:'bg-red-100 text-red-700' };
+  tbody.innerHTML = filtered.map(j => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-4"><div class="font-medium">${j.title}</div><div class="text-slate-500 text-xs">${j.company_name}</div></td>
+      <td class="px-5 py-4">${j.country} · ${j.city}</td>
+      <td class="px-5 py-4">${j.salary}</td>
+      <td class="px-5 py-4"><span class="${badge[j.status] || 'bg-slate-100 text-slate-700'} px-2 py-1 rounded-full text-xs font-medium">${j.status}</span></td>
+      <td class="px-5 py-4 text-right space-x-2">
+        <button onclick='editJob(${JSON.stringify(j).replace(/'/g,"&#39;")})' class="text-blue-600 font-medium text-xs border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50">编辑</button>
+        <button onclick="deleteJob('${j.id}')" class="text-red-600 font-medium text-xs border border-red-200 px-3 py-1.5 rounded hover:bg-red-50">删除</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无数据</td></tr>';
+}
+document.getElementById('jobSearch').addEventListener('input', renderJobs);
+document.getElementById('jobFilterCountry').addEventListener('change', renderJobs);
+document.getElementById('jobFilterStatus').addEventListener('change', renderJobs);
+
+function openJobModal() { document.getElementById('jobModal').classList.remove('hidden'); document.getElementById('jobModal').classList.add('flex'); document.getElementById('jobModalTitle').textContent='新增岗位'; document.getElementById('jobForm').reset(); document.getElementById('jobId').value=''; }
+function closeJobModal() { document.getElementById('jobModal').classList.add('hidden'); document.getElementById('jobModal').classList.remove('flex'); }
+function editJob(j) {
+  openJobModal(); document.getElementById('jobModalTitle').textContent='编辑岗位';
+  document.getElementById('jobId').value=j.id;
+  document.getElementById('jobTitle').value=j.title||'';
+  document.getElementById('jobCompany').value=j.company_name||'';
+  document.getElementById('jobCountry').value=j.country||'';
+  document.getElementById('jobCity').value=j.city||'';
+  document.getElementById('jobSalary').value=j.salary||'';
+  document.getElementById('jobType').value=j.job_type||'Part-time';
+  document.getElementById('jobPlatform').value=j.contact_platform||'whatsapp';
+  document.getElementById('jobLink').value=j.contact_link||'';
+  document.getElementById('jobDesc').value=j.description||'';
+  document.getElementById('jobReqs').value=(j.requirements||[]).join('\n');
+  document.getElementById('jobResp').value=(j.responsibilities||[]).join('\n');
+  document.getElementById('jobTags').value=(j.tags||[]).join(',');
+}
+async function deleteJob(id) { if(!confirm('确定删除？'))return; await api('/admin/jobs/'+id,{method:'DELETE'}); loadJobs(); }
+document.getElementById('jobForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('jobId').value;
+  const body = {
+    title: document.getElementById('jobTitle').value,
+    company_name: document.getElementById('jobCompany').value,
+    country: document.getElementById('jobCountry').value,
+    city: document.getElementById('jobCity').value,
+    salary: document.getElementById('jobSalary').value,
+    job_type: document.getElementById('jobType').value,
+    contact_platform: document.getElementById('jobPlatform').value,
+    contact_link: document.getElementById('jobLink').value,
+    description: document.getElementById('jobDesc').value,
+    requirements: document.getElementById('jobReqs').value.split('\n').filter(Boolean),
+    responsibilities: document.getElementById('jobResp').value.split('\n').filter(Boolean),
+    tags: document.getElementById('jobTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+  };
+  if (id) { await api('/admin/jobs/'+id, {method:'PATCH', body:JSON.stringify(body)}); }
+  else { await api('/admin/jobs', {method:'POST', body:JSON.stringify(body)}); }
+  closeJobModal(); loadJobs();
+});
+
+// Countries
+let allCountries = [];
+async function loadCountries() {
+  const data = await api('/admin/countries');
+  allCountries = data.data || [];
+  renderCountries();
+}
+function renderCountries() {
+  const tbody = document.getElementById('countryTable');
+  tbody.innerHTML = allCountries.map(c => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-4 font-medium">${c.code}</td>
+      <td class="px-5 py-4">${c.name || '-'}</td>
+      <td class="px-5 py-4">${c.currency || '-'}</td>
+      <td class="px-5 py-4">${(c.fallback_order || []).join(', ') || '-'}</td>
+      <td class="px-5 py-4 text-right space-x-2">
+        <button onclick='editCountry(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="text-blue-600 font-medium text-xs border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50">编辑</button>
+        <button onclick="deleteCountry('${c.code}')" class="text-red-600 font-medium text-xs border border-red-200 px-3 py-1.5 rounded hover:bg-red-50">删除</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无数据</td></tr>';
+}
+function openCountryModal() { document.getElementById('countryModal').classList.remove('hidden'); document.getElementById('countryModal').classList.add('flex'); document.getElementById('countryModalTitle').textContent='新增国家'; document.getElementById('countryForm').reset(); document.getElementById('countryCodeOrig').value=''; }
+function closeCountryModal() { document.getElementById('countryModal').classList.add('hidden'); document.getElementById('countryModal').classList.remove('flex'); }
+function editCountry(c) {
+  openCountryModal(); document.getElementById('countryModalTitle').textContent='编辑国家';
+  document.getElementById('countryCodeOrig').value=c.code;
+  document.getElementById('countryCode').value=c.code;
+  document.getElementById('countryName').value=c.name||'';
+  document.getElementById('countryCurrency').value=c.currency||'';
+  document.getElementById('countrySupport').value=c.support_link||'';
+  document.getElementById('countryFallback').value=(c.fallback_order||[]).join(',');
+}
+async function deleteCountry(code) { if(!confirm('确定删除？'))return; await api('/admin/countries/'+code,{method:'DELETE'}); loadCountries(); loadJobs(); }
+document.getElementById('countryForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const orig = document.getElementById('countryCodeOrig').value;
+  const code = document.getElementById('countryCode').value.toUpperCase();
+  const body = {
+    name: document.getElementById('countryName').value,
+    currency: document.getElementById('countryCurrency').value,
+    support_link: document.getElementById('countrySupport').value,
+    fallback_order: document.getElementById('countryFallback').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean),
+  };
+  await api('/admin/countries/'+code, {method:'POST', body:JSON.stringify(body)});
+  closeCountryModal(); loadCountries(); loadJobs();
+});
+
+// Config
+async function loadConfig() {
+  const data = await api('/admin/configs');
+  const cfg = data.data || {};
+  document.getElementById('cfgSearch').checked = cfg.search_enabled || false;
+  document.getElementById('cfgFilter').checked = cfg.filter_enabled || false;
+  document.getElementById('cfgContact').checked = cfg.contact_enabled !== false;
+  document.getElementById('cfgReport').checked = cfg.report_enabled !== false;
+  document.getElementById('cfgShare').checked = cfg.share_enabled || false;
+  document.getElementById('cfgVersion').value = cfg.version || '1.0.0';
+}
+document.getElementById('configForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const body = {
+    search_enabled: document.getElementById('cfgSearch').checked,
+    filter_enabled: document.getElementById('cfgFilter').checked,
+    contact_enabled: document.getElementById('cfgContact').checked,
+    report_enabled: document.getElementById('cfgReport').checked,
+    share_enabled: document.getElementById('cfgShare').checked,
+    version: document.getElementById('cfgVersion').value,
+  };
+  await api('/admin/configs', {method:'POST', body:JSON.stringify(body)});
+  alert('配置已保存');
+});
+
+// Init
+loadJobs();
+</script>
+</body>
+</html>
