@@ -5,215 +5,333 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GPTJobs Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script>
-tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] } } } }
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'] },
+      colors: {
+        primary: { 50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8' },
+        slate: { 850:'#1e293b',900:'#0f172a' }
+      }
+    }
+  }
+}
 </script>
 <style>
-.nav-active { background: #2563eb; color: white; }
-.nav-item { display:flex; align-items:center; padding:0.75rem 1.5rem; color:#cbd5e1; cursor:pointer; }
-.nav-item:hover { background:#1e293b; }
-.tab { display:none; }
-.tab.active { display:block; }
+html,body{height:100%;}
+.sidebar-link{ display:flex; align-items:center; gap:0.75rem; padding:0.625rem 1rem; border-radius:0.5rem; color:#94a3b8; font-size:0.875rem; font-weight:500; cursor:pointer; transition:all .15s; }
+.sidebar-link:hover{ background:#1e293b; color:#e2e8f0; }
+.sidebar-link.active{ background:#2563eb; color:#fff; }
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; animation:fade .2s ease; }
+@keyframes fade{ from{ opacity:0; transform:translateY(4px);} to{ opacity:1; transform:none;} }
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:.375rem; font-size:0.8125rem; font-weight:500; padding:.375rem .75rem; border-radius:.375rem; transition:all .15s; }
+.badge{ display:inline-flex; align-items:center; padding:.125rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:600; }
+.modal-overlay{ position:fixed; inset:0; background:rgba(15,23,42,.55); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:50; }
+.modal-overlay.open{ display:flex; }
+.toast{ position:fixed; top:1rem; right:1rem; z-index:60; transform:translateX(120%); transition:transform .25s ease; }
+.toast.show{ transform:none; }
 </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-<div class="min-h-screen flex">
-  <aside class="w-64 bg-slate-900 text-white flex flex-col">
-    <div class="h-16 flex items-center px-6 font-bold text-lg border-b border-slate-700">GPTJobs Admin</div>
-    <nav class="flex-1 py-4 space-y-1">
-      <div class="nav-item nav-active" onclick="switchTab('review', this)"><span class="mr-3">🔍</span> 审核中心</div>
-      <div class="nav-item" onclick="switchTab('reports', this)"><span class="mr-3">⚠️</span> 举报处理</div>
-      <div class="nav-item" onclick="switchTab('jobs', this)"><span class="mr-3">📋</span> 岗位管理</div>
-      <div class="nav-item" onclick="switchTab('countries', this)"><span class="mr-3">🌍</span> 国家配置</div>
-      <div class="nav-item" onclick="switchTab('config', this)"><span class="mr-3">⚙️</span> 应用配置</div>
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-60 bg-slate-900 flex flex-col border-r border-slate-800">
+    <div class="h-14 flex items-center px-5 border-b border-slate-800">
+      <div class="w-7 h-7 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold text-sm mr-3">G</div>
+      <span class="text-white font-semibold tracking-tight">GPTJobs Admin</span>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <div class="sidebar-link active" data-tab="review" onclick="switchTab('review')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>审核中心</span>
+        <span id="badge-review" class="ml-auto hidden min-w-[1.25rem] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </div>
+      <div class="sidebar-link" data-tab="reports" onclick="switchTab('reports')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>举报处理</span>
+        <span id="badge-reports" class="ml-auto hidden min-w-[1.25rem] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </div>
+      <div class="sidebar-link" data-tab="jobs" onclick="switchTab('jobs')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>岗位管理</span>
+      </div>
+      <div class="sidebar-link" data-tab="countries" onclick="switchTab('countries')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span>国家配置</span>
+      </div>
+      <div class="sidebar-link" data-tab="config" onclick="switchTab('config')">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>应用配置</span>
+      </div>
     </nav>
+
+    <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+      环境: dev · 项目: strange-cosmos-493111-n4
+    </div>
   </aside>
 
-  <main class="flex-1 overflow-auto">
-    <!-- Review Tab -->
-    <div id="tab-review" class="tab active">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-        <h1 class="font-semibold text-lg">审核中心</h1>
-        <span class="text-sm text-slate-500" id="reviewCount"></span>
-      </header>
-      <div class="px-8 py-6">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
-              <th class="px-5 py-3">岗位</th><th class="px-5 py-3">国家/城市</th><th class="px-5 py-3">薪资</th><th class="px-5 py-3">提交时间</th><th class="px-5 py-3 text-right">操作</th>
-            </tr></thead>
-            <tbody id="reviewTable" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <!-- Main -->
+  <main class="flex-1 flex flex-col min-w-0">
+    <!-- Topbar -->
+    <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+      <h1 id="pageTitle" class="text-base font-semibold text-slate-900">审核中心</h1>
+      <div class="flex items-center gap-3" id="topActions"></div>
+    </header>
 
-    <!-- Reports Tab -->
-    <div id="tab-reports" class="tab">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-        <h1 class="font-semibold text-lg">举报处理</h1>
-        <span class="text-sm text-slate-500" id="reportCount"></span>
-      </header>
-      <div class="px-8 py-6">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
-              <th class="px-5 py-3">类型</th><th class="px-5 py-3">原因</th><th class="px-5 py-3">岗位ID</th><th class="px-5 py-3">状态</th><th class="px-5 py-3 text-right">操作</th>
-            </tr></thead>
-            <tbody id="reportTable" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-6">
 
-    <!-- Jobs Tab -->
-    <div id="tab-jobs" class="tab">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-        <h1 class="font-semibold text-lg">岗位管理</h1>
-        <button onclick="openJobModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 新增岗位</button>
-      </header>
-      <div class="px-8 py-4 bg-white border-b border-slate-200 flex gap-3">
-        <input id="jobSearch" type="text" placeholder="搜索标题" class="px-4 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <select id="jobFilterCountry" class="px-4 py-2 border border-slate-300 rounded-lg text-sm"><option value="">全部国家</option></select>
-        <select id="jobFilterStatus" class="px-4 py-2 border border-slate-300 rounded-lg text-sm">
-          <option value="">全部状态</option>
-          <option value="active">上架</option>
-          <option value="pending">待审核</option>
-          <option value="banned">下架</option>
-          <option value="rejected">已拒绝</option>
-        </select>
-      </div>
-      <div class="px-8 py-6">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
-              <th class="px-5 py-3">岗位</th><th class="px-5 py-3">国家/城市</th><th class="px-5 py-3">薪资</th><th class="px-5 py-3">状态</th><th class="px-5 py-3 text-right">操作</th>
-            </tr></thead>
-            <tbody id="jobTable" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Countries Tab -->
-    <div id="tab-countries" class="tab">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-        <h1 class="font-semibold text-lg">国家配置</h1>
-        <button onclick="openCountryModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 新增国家</button>
-      </header>
-      <div class="px-8 py-6">
-        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
-              <th class="px-5 py-3">国家代码</th><th class="px-5 py-3">名称</th><th class="px-5 py-3">货币</th><th class="px-5 py-3">兜底顺序</th><th class="px-5 py-3 text-right">操作</th>
-            </tr></thead>
-            <tbody id="countryTable" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Config Tab -->
-    <div id="tab-config" class="tab">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center px-8">
-        <h1 class="font-semibold text-lg">应用配置</h1>
-      </header>
-      <div class="px-8 py-6 max-w-2xl">
-        <form id="configForm" class="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <label class="flex items-center gap-2"><input type="checkbox" id="cfgSearch" class="w-4 h-4"> 开启搜索</label>
-            <label class="flex items-center gap-2"><input type="checkbox" id="cfgFilter" class="w-4 h-4"> 开启筛选</label>
-            <label class="flex items-center gap-2"><input type="checkbox" id="cfgContact" class="w-4 h-4"> 开启联系</label>
-            <label class="flex items-center gap-2"><input type="checkbox" id="cfgReport" class="w-4 h-4"> 开启举报</label>
-            <label class="flex items-center gap-2"><input type="checkbox" id="cfgShare" class="w-4 h-4"> 开启分享</label>
+      <!-- Review -->
+      <div id="panel-review" class="tab-panel active">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="text-sm font-medium text-slate-700">待审核岗位</div>
+            <div id="reviewStat" class="text-xs text-slate-500"></div>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-500 mb-1">版本号</label>
-            <input id="cfgVersion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-500 font-medium"><tr>
+                <th class="px-5 py-3 text-left font-medium">岗位 / 公司</th>
+                <th class="px-5 py-3 text-left font-medium">地点</th>
+                <th class="px-5 py-3 text-left font-medium">薪资</th>
+                <th class="px-5 py-3 text-left font-medium">提交时间</th>
+                <th class="px-5 py-3 text-right font-medium">操作</th>
+              </tr></thead>
+              <tbody id="reviewTable" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
-          <div class="flex justify-end">
-            <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存配置</button>
-          </div>
-        </form>
+          <div id="reviewEmpty" class="hidden py-12 text-center text-slate-400 text-sm">暂无待审核岗位</div>
+        </div>
       </div>
+
+      <!-- Reports -->
+      <div id="panel-reports" class="tab-panel">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="text-sm font-medium text-slate-700">用户举报</div>
+            <div class="flex gap-2">
+              <button onclick="setReportFilter('')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">全部</button>
+              <button onclick="setReportFilter('pending')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-700 hover:bg-amber-100">待处理</button>
+              <button onclick="setReportFilter('resolved')" class="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100">已处理</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-50 text-slate-500 font-medium"><tr>
+                <th class="px-5 py-3 text-left font-medium">举报类型</th>
+                <th class="px-5 py-3 text-left font-medium">原因 / 描述</th>
+                <th class="px-5 py-3 text-left font-medium">岗位ID</th>
+                <th class="px-5 py-3 text-left font-medium">状态</th>
+                <th class="px-5 py-3 text-right font-medium">操作</th>
+              </tr></thead>
+              <tbody id="reportTable" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+          <div id="reportEmpty" class="hidden py-12 text-center text-slate-400 text-sm">暂无举报数据</div>
+        </div>
+      </div>
+
+      <!-- Jobs -->
+      <div id="panel-jobs" class="tab-panel">
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+            <input id="jobSearch" type="text" placeholder="搜索岗位标题" class="px-3 py-2 border border-slate-200 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <select id="jobFilterCountry" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="">全部国家</option></select>
+            <select id="jobFilterStatus" class="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+              <option value="">全部状态</option>
+              <option value="active">上架</option>
+              <option value="pending">待审核</option>
+              <option value="banned">下架</option>
+              <option value="rejected">已拒绝</option>
+            </select>
+            <div class="flex-1"></div>
+            <button onclick="openJobModal()" class="btn bg-primary-600 text-white hover:bg-primary-700 px-4 py-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+              新增岗位
+            </button>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-medium"><tr>
+                  <th class="px-5 py-3 text-left font-medium">岗位 / 公司</th>
+                  <th class="px-5 py-3 text-left font-medium">地点</th>
+                  <th class="px-5 py-3 text-left font-medium">薪资</th>
+                  <th class="px-5 py-3 text-left font-medium">状态</th>
+                  <th class="px-5 py-3 text-right font-medium">操作</th>
+                </tr></thead>
+                <tbody id="jobTable" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+            <div id="jobEmpty" class="hidden py-12 text-center text-slate-400 text-sm">暂无岗位数据</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Countries -->
+      <div id="panel-countries" class="tab-panel">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+            <div class="text-sm text-slate-500">配置国家信息、货币及岗位兜底策略</div>
+            <button onclick="openCountryModal()" class="btn bg-primary-600 text-white hover:bg-primary-700 px-4 py-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+              新增国家
+            </button>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-medium"><tr>
+                  <th class="px-5 py-3 text-left font-medium">国家代码</th>
+                  <th class="px-5 py-3 text-left font-medium">名称</th>
+                  <th class="px-5 py-3 text-left font-medium">货币</th>
+                  <th class="px-5 py-3 text-left font-medium">兜底顺序</th>
+                  <th class="px-5 py-3 text-right font-medium">操作</th>
+                </tr></thead>
+                <tbody id="countryTable" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+            <div id="countryEmpty" class="hidden py-12 text-center text-slate-400 text-sm">暂无国家配置</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config -->
+      <div id="panel-config" class="tab-panel">
+        <div class="max-w-2xl">
+          <form id="configForm" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-900 mb-4">功能开关</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-primary-500 transition">
+                  <span class="text-sm text-slate-700">搜索</span>
+                  <input type="checkbox" id="cfgSearch" class="w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                </label>
+                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-primary-500 transition">
+                  <span class="text-sm text-slate-700">筛选</span>
+                  <input type="checkbox" id="cfgFilter" class="w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                </label>
+                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-primary-500 transition">
+                  <span class="text-sm text-slate-700">联系入口</span>
+                  <input type="checkbox" id="cfgContact" class="w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                </label>
+                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-primary-500 transition">
+                  <span class="text-sm text-slate-700">举报</span>
+                  <input type="checkbox" id="cfgReport" class="w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                </label>
+                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3 cursor-pointer hover:border-primary-500 transition">
+                  <span class="text-sm text-slate-700">分享</span>
+                  <input type="checkbox" id="cfgShare" class="w-5 h-5 text-primary-600 rounded focus:ring-primary-500">
+                </label>
+              </div>
+            </div>
+            <div class="border-t border-slate-100 pt-6">
+              <h3 class="text-sm font-semibold text-slate-900 mb-4">基础信息</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-500 mb-1">版本号</label>
+                  <input id="cfgVersion" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="btn bg-primary-600 text-white hover:bg-primary-700 px-5 py-2.5">保存配置</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
 
 <!-- Job Modal -->
-<div id="jobModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 id="jobModalTitle" class="text-lg font-semibold">新增岗位</h2>
-      <button onclick="closeJobModal()" class="text-slate-400 hover:text-slate-600 text-2xl">×</button>
+<div id="jobModal" class="modal-overlay">
+  <div class="bg-white rounded-xl w-full max-w-3xl max-h-[92vh] overflow-y-auto shadow-2xl m-4">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 id="jobModalTitle" class="text-base font-semibold text-slate-900">新增岗位</h2>
+      <button onclick="closeJobModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
-    <form id="jobForm" class="space-y-4">
+    <form id="jobForm" class="p-6 space-y-5">
       <input type="hidden" id="jobId">
-      <div class="grid grid-cols-2 gap-4">
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">标题</label><input id="jobTitle" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">公司</label><input id="jobCompany" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">国家</label><select id="jobCountry" required class="w-full border rounded-lg px-3 py-2 text-sm"></select></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">城市</label><input id="jobCity" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">薪资</label><input id="jobSalary" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">类型</label>
-          <select id="jobType" class="w-full border rounded-lg px-3 py-2 text-sm">
-            <option>Part-time</option><option>Full-time</option><option>Contract</option>
-          </select>
-        </div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">联系方式</label>
-          <select id="jobPlatform" class="w-full border rounded-lg px-3 py-2 text-sm">
-            <option>whatsapp</option><option>telegram</option><option>email</option><option>external_url</option>
-          </select>
-        </div>
-        <div class="col-span-2"><label class="block text-xs font-medium text-slate-500 mb-1">联系链接</label><input id="jobLink" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">岗位标题 <span class="text-red-500">*</span></label><input id="jobTitle" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">公司名称 <span class="text-red-500">*</span></label><input id="jobCompany" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">国家 <span class="text-red-500">*</span></label><select id="jobCountry" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">城市 <span class="text-red-500">*</span></label><input id="jobCity" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">薪资 <span class="text-red-500">*</span></label><input id="jobSalary" placeholder="如 BRL 150/day" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">工作类型</label><select id="jobType" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option>Part-time</option><option>Full-time</option><option>Contract</option></select></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">联系平台</label><select id="jobPlatform" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option>whatsapp</option><option>telegram</option><option>email</option><option>external_url</option></select></div>
+        <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-500 mb-1.5">联系链接 <span class="text-red-500">*</span></label><input id="jobLink" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
       </div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">描述</label><textarea id="jobDesc" rows="3" required class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">要求 (每行一个)</label><textarea id="jobReqs" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">职责 (每行一个)</label><textarea id="jobResp" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea></div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">标签 (逗号分隔)</label><input id="jobTags" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button" onclick="closeJobModal()" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">取消</button>
-        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存</button>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1.5">岗位描述 <span class="text-red-500">*</span></label><textarea id="jobDesc" rows="4" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">岗位要求（每行一个）</label><textarea id="jobReqs" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">工作职责（每行一个）</label><textarea id="jobResp" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea></div>
+      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1.5">标签（逗号分隔）</label><input id="jobTags" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+      <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeJobModal()" class="btn border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2">取消</button>
+        <button type="submit" class="btn bg-primary-600 text-white hover:bg-primary-700 px-5 py-2">保存</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Country Modal -->
-<div id="countryModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-  <div class="bg-white rounded-xl w-full max-w-lg p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 id="countryModalTitle" class="text-lg font-semibold">新增国家</h2>
-      <button onclick="closeCountryModal()" class="text-slate-400 hover:text-slate-600 text-2xl">×</button>
+<div id="countryModal" class="modal-overlay">
+  <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl m-4">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 id="countryModalTitle" class="text-base font-semibold text-slate-900">新增国家</h2>
+      <button onclick="closeCountryModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
-    <form id="countryForm" class="space-y-4">
+    <form id="countryForm" class="p-6 space-y-5">
       <input type="hidden" id="countryCodeOrig">
-      <div class="grid grid-cols-2 gap-4">
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">国家代码</label><input id="countryCode" required class="w-full border rounded-lg px-3 py-2 text-sm uppercase"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">显示名称</label><input id="countryName" required class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">货币符号</label><input id="countryCurrency" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-        <div><label class="block text-xs font-medium text-slate-500 mb-1">客服链接</label><input id="countrySupport" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
+      <div class="grid grid-cols-2 gap-5">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">国家代码 <span class="text-red-500">*</span></label><input id="countryCode" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">显示名称 <span class="text-red-500">*</span></label><input id="countryName" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">货币符号</label><input id="countryCurrency" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1.5">客服链接</label><input id="countrySupport" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
       </div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">兜底国家顺序 (逗号分隔，如 BR,PH,ID)</label><input id="countryFallback" class="w-full border rounded-lg px-3 py-2 text-sm"></div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button" onclick="closeCountryModal()" class="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50">取消</button>
-        <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">保存</button>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1.5">兜底国家顺序（逗号分隔，如 BR,PH,ID）</label><input id="countryFallback" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+      <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeCountryModal()" class="btn border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2">取消</button>
+        <button type="submit" class="btn bg-primary-600 text-white hover:bg-primary-700 px-5 py-2">保存</button>
       </div>
     </form>
   </div>
 </div>
 
+<!-- Toast -->
+<div id="toast" class="toast bg-slate-900 text-white text-sm px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+  <svg id="toastIcon" class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+  <span id="toastMsg">操作成功</span>
+</div>
+
 <script>
 const API_BASE = '/api';
+let currentReportFilter = '';
 
 // Tabs
-function switchTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
-  el.classList.add('nav-active');
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.sidebar-link').forEach(n => n.classList.remove('active'));
+  document.querySelector('.sidebar-link[data-tab="' + name + '"]').classList.add('active');
+
+  const titles = { review:'审核中心', reports:'举报处理', jobs:'岗位管理', countries:'国家配置', config:'应用配置' };
+  document.getElementById('pageTitle').textContent = titles[name];
+
   if (name === 'review') loadReviews();
   if (name === 'reports') loadReports();
   if (name === 'jobs') loadJobs();
@@ -225,10 +343,25 @@ async function api(path, opts = {}) {
   const res = await fetch(API_BASE + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    alert(json.message || '请求失败');
+    showToast(json.message || '请求失败', 'error');
     throw new Error(json.message || '请求失败');
   }
   return json;
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  const icon = document.getElementById('toastIcon');
+  if (type === 'error') {
+    icon.classList.replace('text-emerald-400','text-rose-400');
+    icon.innerHTML = '<path d="M6 18L18 6M6 6l12 12"/>';
+  } else {
+    icon.classList.replace('text-rose-400','text-emerald-400');
+    icon.innerHTML = '<path d="M5 13l4 4L19 7"/>';
+  }
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 // Reviews
@@ -236,28 +369,35 @@ let pendingJobs = [];
 async function loadReviews() {
   const data = await api('/admin/jobs?status=pending&page_size=100');
   pendingJobs = data.data?.list || [];
-  document.getElementById('reviewCount').textContent = `待审核: ${pendingJobs.length} 条`;
+  updateBadge('badge-review', pendingJobs.length);
+  document.getElementById('reviewStat').textContent = `共 ${pendingJobs.length} 条待审核`;
   const tbody = document.getElementById('reviewTable');
   tbody.innerHTML = pendingJobs.map(j => `
-    <tr class="hover:bg-slate-50">
-      <td class="px-5 py-4"><div class="font-medium">${j.title}</div><div class="text-slate-500 text-xs">${j.company_name}</div></td>
-      <td class="px-5 py-4">${j.country} · ${j.city}</td>
-      <td class="px-5 py-4">${j.salary}</td>
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-5 py-4">
+        <div class="font-medium text-slate-900">${j.title}</div>
+        <div class="text-slate-500 text-xs mt-0.5">${j.company_name}</div>
+      </td>
+      <td class="px-5 py-4 text-slate-600">${j.country} · ${j.city}</td>
+      <td class="px-5 py-4 text-slate-600">${j.salary}</td>
       <td class="px-5 py-4 text-slate-500 text-xs">${j.created_at ? j.created_at.slice(0,16).replace('T',' ') : '-'}</td>
-      <td class="px-5 py-4 text-right space-x-1">
-        <button onclick="reviewJob('${j.id}', 'approve')" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700">通过</button>
-        <button onclick="reviewJob('${j.id}', 'reject')" class="bg-amber-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-amber-700">拒绝</button>
-        <button onclick="reviewJob('${j.id}', 'ban')" class="bg-red-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-red-700">下架</button>
+      <td class="px-5 py-4 text-right">
+        <div class="inline-flex items-center gap-2">
+          <button onclick="reviewJob('${j.id}', 'approve')" class="btn bg-emerald-600 text-white hover:bg-emerald-700">通过</button>
+          <button onclick="reviewJob('${j.id}', 'reject')" class="btn bg-amber-500 text-white hover:bg-amber-600">拒绝</button>
+          <button onclick="reviewJob('${j.id}', 'ban')" class="btn bg-rose-600 text-white hover:bg-rose-700">下架</button>
+        </div>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无待审核岗位</td></tr>';
+  `).join('');
+  document.getElementById('reviewEmpty').classList.toggle('hidden', pendingJobs.length > 0);
 }
 async function reviewJob(id, action) {
-  const labels = { approve: '通过', reject: '拒绝', ban: '下架' };
-  if (!confirm(`确定要${labels[action]}该岗位？`)) return;
-  await api('/admin/jobs/' + id + '/review', { method: 'PATCH', body: JSON.stringify({ action }) });
-  loadReviews();
-  loadJobs();
+  const labels = { approve:'通过', reject:'拒绝', ban:'下架' };
+  if (!confirm(`确定要 ${labels[action]} 该岗位？`)) return;
+  await api('/admin/jobs/' + id + '/review', { method:'PATCH', body:JSON.stringify({ action }) });
+  showToast('已' + labels[action]);
+  loadReviews(); loadJobs();
 }
 
 // Reports
@@ -265,30 +405,43 @@ let allReports = [];
 async function loadReports() {
   const data = await api('/admin/reports?page_size=100');
   allReports = data.data?.list || [];
-  const pendingCount = allReports.filter(r => r.status === 'pending').length;
-  document.getElementById('reportCount').textContent = `待处理: ${pendingCount} 条 / 总计: ${allReports.length} 条`;
+  const pending = allReports.filter(r => r.status === 'pending').length;
+  updateBadge('badge-reports', pending);
+  renderReports();
+}
+function setReportFilter(status) {
+  currentReportFilter = status;
+  renderReports();
+}
+function renderReports() {
+  const list = currentReportFilter ? allReports.filter(r => r.status === currentReportFilter) : allReports;
   const tbody = document.getElementById('reportTable');
-  tbody.innerHTML = allReports.map(r => {
-    const statusBadge = { pending:'bg-amber-100 text-amber-700', resolved:'bg-emerald-100 text-emerald-700', dismissed:'bg-slate-100 text-slate-700' }[r.status] || 'bg-slate-100';
-    const pendingActions = r.status === 'pending' ? `
-      <button onclick="handleReport('${r.id}', 'resolve', true)" class="bg-red-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-red-700">违规下架</button>
-      <button onclick="handleReport('${r.id}', 'resolve', false)" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700">正常通过</button>
-      <button onclick="handleReport('${r.id}', 'dismiss', false)" class="bg-slate-500 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-600">忽略</button>
-    ` : '<span class="text-xs text-slate-400">已处理</span>';
+  tbody.innerHTML = list.map(r => {
+    const st = { pending:{cls:'bg-amber-50 text-amber-700 border border-amber-100',txt:'待处理'}, resolved:{cls:'bg-emerald-50 text-emerald-700 border border-emerald-100',txt:'已处理'}, dismissed:{cls:'bg-slate-50 text-slate-600 border border-slate-100',txt:'已忽略'} }[r.status] || {cls:'bg-slate-50 text-slate-600',txt:r.status};
+    const actions = r.status === 'pending' ? `
+      <div class="inline-flex items-center gap-2">
+        <button onclick="handleReport('${r.id}', 'resolve', true)" class="btn bg-rose-600 text-white hover:bg-rose-700">违规下架</button>
+        <button onclick="handleReport('${r.id}', 'resolve', false)" class="btn bg-emerald-600 text-white hover:bg-emerald-700">正常通过</button>
+        <button onclick="handleReport('${r.id}', 'dismiss', false)" class="btn border border-slate-200 text-slate-600 hover:bg-slate-50">忽略</button>
+      </div>
+    ` : '<span class="text-xs text-slate-400">—</span>';
     return `
-    <tr class="hover:bg-slate-50">
-      <td class="px-5 py-4">${r.type}</td>
-      <td class="px-5 py-4 max-w-xs truncate" title="${r.reason}">${r.reason || '-'}</td>
-      <td class="px-5 py-4 font-mono text-xs">${r.job_id || '-'}</td>
-      <td class="px-5 py-4"><span class="${statusBadge} px-2 py-1 rounded-full text-xs font-medium">${r.status}</span></td>
-      <td class="px-5 py-4 text-right space-x-1">${pendingActions}</td>
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-5 py-4"><span class="text-slate-700 font-medium">${r.type}</span></td>
+      <td class="px-5 py-4"><div class="max-w-xs truncate text-slate-600" title="${r.reason}">${r.reason || '-'}</div></td>
+      <td class="px-5 py-4"><span class="font-mono text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">${r.job_id || '-'}</span></td>
+      <td class="px-5 py-4"><span class="badge ${st.cls}">${st.txt}</span></td>
+      <td class="px-5 py-4 text-right">${actions}</td>
     </tr>
-  `}).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无举报</td></tr>';
+  `}).join('');
+  document.getElementById('reportEmpty').classList.toggle('hidden', list.length > 0);
 }
 async function handleReport(id, action, banJob) {
-  const labels = { resolve: '处理', dismiss: '忽略' };
-  if (!confirm(`确定${labels[action]}该举报？${banJob ? '并同时下架对应岗位' : ''}`)) return;
-  await api('/admin/reports/' + id + '/handle', { method: 'POST', body: JSON.stringify({ action, ban_job: banJob }) });
+  const labels = { resolve:'处理', dismiss:'忽略' };
+  const msg = banJob ? `确定${labels[action]}并下架对应岗位？` : `确定${labels[action]}该举报？`;
+  if (!confirm(msg)) return;
+  await api('/admin/reports/' + id + '/handle', { method:'POST', body:JSON.stringify({ action, ban_job: banJob }) });
+  showToast('举报已' + labels[action]);
   loadReports();
   if (banJob) { loadReviews(); loadJobs(); }
 }
@@ -321,26 +474,34 @@ function renderJobs() {
     if (term && !j.title.toLowerCase().includes(term)) return false;
     return true;
   });
-  const badge = { active:'bg-emerald-100 text-emerald-700', pending:'bg-amber-100 text-amber-700', banned:'bg-red-100 text-red-700', rejected:'bg-slate-100 text-slate-700' };
-  tbody.innerHTML = filtered.map(j => `
-    <tr class="hover:bg-slate-50">
-      <td class="px-5 py-4"><div class="font-medium">${j.title}</div><div class="text-slate-500 text-xs">${j.company_name}</div></td>
-      <td class="px-5 py-4">${j.country} · ${j.city}</td>
-      <td class="px-5 py-4">${j.salary}</td>
-      <td class="px-5 py-4"><span class="${badge[j.status] || 'bg-slate-100 text-slate-700'} px-2 py-1 rounded-full text-xs font-medium">${j.status}</span></td>
-      <td class="px-5 py-4 text-right space-x-2">
-        <button onclick='editJob(${JSON.stringify(j).replace(/'/g,"&#39;")})' class="text-blue-600 font-medium text-xs border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50">编辑</button>
-        <button onclick="deleteJob('${j.id}')" class="text-red-600 font-medium text-xs border border-red-200 px-3 py-1.5 rounded hover:bg-red-50">删除</button>
+  const stMap = { active:{cls:'bg-emerald-50 text-emerald-700 border border-emerald-100',txt:'上架'}, pending:{cls:'bg-amber-50 text-amber-700 border border-amber-100',txt:'待审核'}, banned:{cls:'bg-rose-50 text-rose-700 border border-rose-100',txt:'下架'}, rejected:{cls:'bg-slate-50 text-slate-600 border border-slate-100',txt:'已拒绝'} };
+  tbody.innerHTML = filtered.map(j => {
+    const st = stMap[j.status] || {cls:'bg-slate-50 text-slate-600',txt:j.status};
+    return `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-5 py-4">
+        <div class="font-medium text-slate-900">${j.title}</div>
+        <div class="text-slate-500 text-xs mt-0.5">${j.company_name}</div>
+      </td>
+      <td class="px-5 py-4 text-slate-600">${j.country} · ${j.city}</td>
+      <td class="px-5 py-4 text-slate-600">${j.salary}</td>
+      <td class="px-5 py-4"><span class="badge ${st.cls}">${st.txt}</span></td>
+      <td class="px-5 py-4 text-right">
+        <div class="inline-flex items-center gap-2">
+          <button onclick='editJob(${JSON.stringify(j).replace(/'/g,"&#39;")})' class="btn border border-slate-200 text-slate-700 hover:bg-slate-50">编辑</button>
+          <button onclick="deleteJob('${j.id}')" class="btn text-rose-600 hover:bg-rose-50">删除</button>
+        </div>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无数据</td></tr>';
+  `}).join('');
+  document.getElementById('jobEmpty').classList.toggle('hidden', filtered.length > 0);
 }
 document.getElementById('jobSearch').addEventListener('input', renderJobs);
 document.getElementById('jobFilterCountry').addEventListener('change', renderJobs);
 document.getElementById('jobFilterStatus').addEventListener('change', renderJobs);
 
-function openJobModal() { document.getElementById('jobModal').classList.remove('hidden'); document.getElementById('jobModal').classList.add('flex'); document.getElementById('jobModalTitle').textContent='新增岗位'; document.getElementById('jobForm').reset(); document.getElementById('jobId').value=''; }
-function closeJobModal() { document.getElementById('jobModal').classList.add('hidden'); document.getElementById('jobModal').classList.remove('flex'); }
+function openJobModal() { document.getElementById('jobModal').classList.add('open'); document.getElementById('jobModalTitle').textContent='新增岗位'; document.getElementById('jobForm').reset(); document.getElementById('jobId').value=''; }
+function closeJobModal() { document.getElementById('jobModal').classList.remove('open'); }
 function editJob(j) {
   openJobModal(); document.getElementById('jobModalTitle').textContent='编辑岗位';
   document.getElementById('jobId').value=j.id;
@@ -357,7 +518,7 @@ function editJob(j) {
   document.getElementById('jobResp').value=(j.responsibilities||[]).join('\n');
   document.getElementById('jobTags').value=(j.tags||[]).join(',');
 }
-async function deleteJob(id) { if(!confirm('确定删除？'))return; await api('/admin/jobs/'+id,{method:'DELETE'}); loadJobs(); loadReviews(); }
+async function deleteJob(id) { if(!confirm('确定删除该岗位？'))return; await api('/admin/jobs/'+id,{method:'DELETE'}); showToast('已删除'); loadJobs(); loadReviews(); }
 document.getElementById('jobForm').addEventListener('submit', async e => {
   e.preventDefault();
   const id = document.getElementById('jobId').value;
@@ -375,8 +536,8 @@ document.getElementById('jobForm').addEventListener('submit', async e => {
     responsibilities: document.getElementById('jobResp').value.split('\n').filter(Boolean),
     tags: document.getElementById('jobTags').value.split(',').map(s=>s.trim()).filter(Boolean),
   };
-  if (id) { await api('/admin/jobs/'+id, {method:'PATCH', body:JSON.stringify(body)}); }
-  else { await api('/admin/jobs', {method:'POST', body:JSON.stringify(body)}); }
+  if (id) { await api('/admin/jobs/'+id, {method:'PATCH', body:JSON.stringify(body)}); showToast('岗位已更新'); }
+  else { await api('/admin/jobs', {method:'POST', body:JSON.stringify(body)}); showToast('岗位已创建'); }
   closeJobModal(); loadJobs(); loadReviews();
 });
 
@@ -390,20 +551,23 @@ async function loadCountries() {
 function renderCountries() {
   const tbody = document.getElementById('countryTable');
   tbody.innerHTML = allCountries.map(c => `
-    <tr class="hover:bg-slate-50">
-      <td class="px-5 py-4 font-medium">${c.code}</td>
-      <td class="px-5 py-4">${c.name || '-'}</td>
-      <td class="px-5 py-4">${c.currency || '-'}</td>
-      <td class="px-5 py-4">${(c.fallback_order || []).join(', ') || '-'}</td>
-      <td class="px-5 py-4 text-right space-x-2">
-        <button onclick='editCountry(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="text-blue-600 font-medium text-xs border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-50">编辑</button>
-        <button onclick="deleteCountry('${c.code}')" class="text-red-600 font-medium text-xs border border-red-200 px-3 py-1.5 rounded hover:bg-red-50">删除</button>
+    <tr class="hover:bg-slate-50 transition">
+      <td class="px-5 py-4"><span class="inline-block bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-semibold">${c.code}</span></td>
+      <td class="px-5 py-4 text-slate-700">${c.name || '-'}</td>
+      <td class="px-5 py-4 text-slate-600">${c.currency || '-'}</td>
+      <td class="px-5 py-4 text-slate-600">${(c.fallback_order || []).join(', ') || '-'}</td>
+      <td class="px-5 py-4 text-right">
+        <div class="inline-flex items-center gap-2">
+          <button onclick='editCountry(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="btn border border-slate-200 text-slate-700 hover:bg-slate-50">编辑</button>
+          <button onclick="deleteCountry('${c.code}')" class="btn text-rose-600 hover:bg-rose-50">删除</button>
+        </div>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无数据</td></tr>';
+  `).join('');
+  document.getElementById('countryEmpty').classList.toggle('hidden', allCountries.length > 0);
 }
-function openCountryModal() { document.getElementById('countryModal').classList.remove('hidden'); document.getElementById('countryModal').classList.add('flex'); document.getElementById('countryModalTitle').textContent='新增国家'; document.getElementById('countryForm').reset(); document.getElementById('countryCodeOrig').value=''; }
-function closeCountryModal() { document.getElementById('countryModal').classList.add('hidden'); document.getElementById('countryModal').classList.remove('flex'); }
+function openCountryModal() { document.getElementById('countryModal').classList.add('open'); document.getElementById('countryModalTitle').textContent='新增国家'; document.getElementById('countryForm').reset(); document.getElementById('countryCodeOrig').value=''; }
+function closeCountryModal() { document.getElementById('countryModal').classList.remove('open'); }
 function editCountry(c) {
   openCountryModal(); document.getElementById('countryModalTitle').textContent='编辑国家';
   document.getElementById('countryCodeOrig').value=c.code;
@@ -413,10 +577,9 @@ function editCountry(c) {
   document.getElementById('countrySupport').value=c.support_link||'';
   document.getElementById('countryFallback').value=(c.fallback_order||[]).join(',');
 }
-async function deleteCountry(code) { if(!confirm('确定删除？'))return; await api('/admin/countries/'+code,{method:'DELETE'}); loadCountries(); loadJobs(); }
+async function deleteCountry(code) { if(!confirm('确定删除该国家配置？'))return; await api('/admin/countries/'+code,{method:'DELETE'}); showToast('已删除'); loadCountries(); loadJobs(); }
 document.getElementById('countryForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const orig = document.getElementById('countryCodeOrig').value;
   const code = document.getElementById('countryCode').value.toUpperCase();
   const body = {
     name: document.getElementById('countryName').value,
@@ -425,6 +588,7 @@ document.getElementById('countryForm').addEventListener('submit', async e => {
     fallback_order: document.getElementById('countryFallback').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean),
   };
   await api('/admin/countries/'+code, {method:'POST', body:JSON.stringify(body)});
+  showToast('国家配置已保存');
   closeCountryModal(); loadCountries(); loadJobs();
 });
 
@@ -450,8 +614,14 @@ document.getElementById('configForm').addEventListener('submit', async e => {
     version: document.getElementById('cfgVersion').value,
   };
   await api('/admin/configs', {method:'POST', body:JSON.stringify(body)});
-  alert('配置已保存');
+  showToast('配置已保存');
 });
+
+function updateBadge(id, count) {
+  const el = document.getElementById(id);
+  el.textContent = count > 99 ? '99+' : count;
+  el.classList.toggle('hidden', count === 0);
+}
 
 // Init
 loadReviews();
