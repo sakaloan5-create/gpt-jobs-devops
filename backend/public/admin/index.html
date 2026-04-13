@@ -324,19 +324,22 @@ let currentReportFilter = '';
 
 // Tabs
 function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  document.querySelectorAll('.sidebar-link').forEach(n => n.classList.remove('active'));
-  document.querySelector('.sidebar-link[data-tab="' + name + '"]').classList.add('active');
+  try {
+    document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.querySelectorAll('.sidebar-link').forEach(n => n.classList.remove('active'));
+    const nav = document.querySelector('.sidebar-link[data-tab="' + name + '"]');
+    if (nav) nav.classList.add('active');
 
-  const titles = { review:'审核中心', reports:'举报处理', jobs:'岗位管理', countries:'国家配置', config:'应用配置' };
-  document.getElementById('pageTitle').textContent = titles[name];
+    const titles = { review:'审核中心', reports:'举报处理', jobs:'岗位管理', countries:'国家配置', config:'应用配置' };
+    document.getElementById('pageTitle').textContent = titles[name];
+  } catch (e) { console.error(e); }
 
-  if (name === 'review') loadReviews();
-  if (name === 'reports') loadReports();
-  if (name === 'jobs') loadJobs();
-  if (name === 'countries') loadCountries();
-  if (name === 'config') loadConfig();
+  if (name === 'review') loadReviews().catch(()=>{});
+  if (name === 'reports') loadReports().catch(()=>{});
+  if (name === 'jobs') loadJobs().catch(()=>{});
+  if (name === 'countries') loadCountries().catch(()=>{});
+  if (name === 'config') loadConfig().catch(()=>{});
 }
 
 async function api(path, opts = {}) {
