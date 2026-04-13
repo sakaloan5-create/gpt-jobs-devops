@@ -13,7 +13,6 @@ on:
         default: 'dev'
 
 env:
-  # 根据分支或手动输入动态设置（ Junior 可按需修改）
   GCP_REGION: asia-east1
   SERVICE_NAME: gpt-jobs-api
 
@@ -46,12 +45,23 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      - name: Ensure Artifact Registry repository exists
+        run: |
+          gcloud artifacts repositories create cloudrun \
+            --repository-format=docker \
+            --location=${{ env.GCP_REGION }} \
+            --description="Cloud Run images" \
+            --project ${{ secrets.GCP_PROJECT_ID }} || true
+
+      - name: Configure docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+
       - name: Build & Push Container Image
         run: |
-          IMAGE_TAG=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloudrun/${{ env.SERVICE_NAME }}:${{ github.sha }}
-          gcloud builds submit ./backend \
-            --tag $IMAGE_TAG \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+          IMAGE_TAG=${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloudrun/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker build -t $IMAGE_TAG ./backend
+          docker push $IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
 
       - name: Deploy to Cloud Run
