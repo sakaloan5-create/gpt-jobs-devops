@@ -23,15 +23,53 @@ tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'
   <aside class="w-64 bg-slate-900 text-white flex flex-col">
     <div class="h-16 flex items-center px-6 font-bold text-lg border-b border-slate-700">GPTJobs Admin</div>
     <nav class="flex-1 py-4 space-y-1">
-      <div class="nav-item nav-active" onclick="switchTab('jobs', this)"><span class="mr-3">📋</span> 岗位管理</div>
+      <div class="nav-item nav-active" onclick="switchTab('review', this)"><span class="mr-3">🔍</span> 审核中心</div>
+      <div class="nav-item" onclick="switchTab('reports', this)"><span class="mr-3">⚠️</span> 举报处理</div>
+      <div class="nav-item" onclick="switchTab('jobs', this)"><span class="mr-3">📋</span> 岗位管理</div>
       <div class="nav-item" onclick="switchTab('countries', this)"><span class="mr-3">🌍</span> 国家配置</div>
       <div class="nav-item" onclick="switchTab('config', this)"><span class="mr-3">⚙️</span> 应用配置</div>
     </nav>
   </aside>
 
   <main class="flex-1 overflow-auto">
+    <!-- Review Tab -->
+    <div id="tab-review" class="tab active">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+        <h1 class="font-semibold text-lg">审核中心</h1>
+        <span class="text-sm text-slate-500" id="reviewCount"></span>
+      </header>
+      <div class="px-8 py-6">
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
+              <th class="px-5 py-3">岗位</th><th class="px-5 py-3">国家/城市</th><th class="px-5 py-3">薪资</th><th class="px-5 py-3">提交时间</th><th class="px-5 py-3 text-right">操作</th>
+            </tr></thead>
+            <tbody id="reviewTable" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Tab -->
+    <div id="tab-reports" class="tab">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+        <h1 class="font-semibold text-lg">举报处理</h1>
+        <span class="text-sm text-slate-500" id="reportCount"></span>
+      </header>
+      <div class="px-8 py-6">
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200"><tr>
+              <th class="px-5 py-3">类型</th><th class="px-5 py-3">原因</th><th class="px-5 py-3">岗位ID</th><th class="px-5 py-3">状态</th><th class="px-5 py-3 text-right">操作</th>
+            </tr></thead>
+            <tbody id="reportTable" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Jobs Tab -->
-    <div id="tab-jobs" class="tab active">
+    <div id="tab-jobs" class="tab">
       <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
         <h1 class="font-semibold text-lg">岗位管理</h1>
         <button onclick="openJobModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 新增岗位</button>
@@ -44,6 +82,7 @@ tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'
           <option value="active">上架</option>
           <option value="pending">待审核</option>
           <option value="banned">下架</option>
+          <option value="rejected">已拒绝</option>
         </select>
       </div>
       <div class="px-8 py-6">
@@ -175,6 +214,8 @@ function switchTab(name, el) {
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('nav-active'));
   el.classList.add('nav-active');
+  if (name === 'review') loadReviews();
+  if (name === 'reports') loadReports();
   if (name === 'jobs') loadJobs();
   if (name === 'countries') loadCountries();
   if (name === 'config') loadConfig();
@@ -188,6 +229,68 @@ async function api(path, opts = {}) {
     throw new Error(json.message || '请求失败');
   }
   return json;
+}
+
+// Reviews
+let pendingJobs = [];
+async function loadReviews() {
+  const data = await api('/admin/jobs?status=pending&page_size=100');
+  pendingJobs = data.data?.list || [];
+  document.getElementById('reviewCount').textContent = `待审核: ${pendingJobs.length} 条`;
+  const tbody = document.getElementById('reviewTable');
+  tbody.innerHTML = pendingJobs.map(j => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-4"><div class="font-medium">${j.title}</div><div class="text-slate-500 text-xs">${j.company_name}</div></td>
+      <td class="px-5 py-4">${j.country} · ${j.city}</td>
+      <td class="px-5 py-4">${j.salary}</td>
+      <td class="px-5 py-4 text-slate-500 text-xs">${j.created_at ? j.created_at.slice(0,16).replace('T',' ') : '-'}</td>
+      <td class="px-5 py-4 text-right space-x-1">
+        <button onclick="reviewJob('${j.id}', 'approve')" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700">通过</button>
+        <button onclick="reviewJob('${j.id}', 'reject')" class="bg-amber-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-amber-700">拒绝</button>
+        <button onclick="reviewJob('${j.id}', 'ban')" class="bg-red-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-red-700">下架</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无待审核岗位</td></tr>';
+}
+async function reviewJob(id, action) {
+  const labels = { approve: '通过', reject: '拒绝', ban: '下架' };
+  if (!confirm(`确定要${labels[action]}该岗位？`)) return;
+  await api('/admin/jobs/' + id + '/review', { method: 'PATCH', body: JSON.stringify({ action }) });
+  loadReviews();
+  loadJobs();
+}
+
+// Reports
+let allReports = [];
+async function loadReports() {
+  const data = await api('/admin/reports?page_size=100');
+  allReports = data.data?.list || [];
+  const pendingCount = allReports.filter(r => r.status === 'pending').length;
+  document.getElementById('reportCount').textContent = `待处理: ${pendingCount} 条 / 总计: ${allReports.length} 条`;
+  const tbody = document.getElementById('reportTable');
+  tbody.innerHTML = allReports.map(r => {
+    const statusBadge = { pending:'bg-amber-100 text-amber-700', resolved:'bg-emerald-100 text-emerald-700', dismissed:'bg-slate-100 text-slate-700' }[r.status] || 'bg-slate-100';
+    const pendingActions = r.status === 'pending' ? `
+      <button onclick="handleReport('${r.id}', 'resolve', true)" class="bg-red-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-red-700">违规下架</button>
+      <button onclick="handleReport('${r.id}', 'resolve', false)" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-emerald-700">正常通过</button>
+      <button onclick="handleReport('${r.id}', 'dismiss', false)" class="bg-slate-500 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-600">忽略</button>
+    ` : '<span class="text-xs text-slate-400">已处理</span>';
+    return `
+    <tr class="hover:bg-slate-50">
+      <td class="px-5 py-4">${r.type}</td>
+      <td class="px-5 py-4 max-w-xs truncate" title="${r.reason}">${r.reason || '-'}</td>
+      <td class="px-5 py-4 font-mono text-xs">${r.job_id || '-'}</td>
+      <td class="px-5 py-4"><span class="${statusBadge} px-2 py-1 rounded-full text-xs font-medium">${r.status}</span></td>
+      <td class="px-5 py-4 text-right space-x-1">${pendingActions}</td>
+    </tr>
+  `}).join('') || '<tr><td colspan="5" class="px-5 py-8 text-center text-slate-400">暂无举报</td></tr>';
+}
+async function handleReport(id, action, banJob) {
+  const labels = { resolve: '处理', dismiss: '忽略' };
+  if (!confirm(`确定${labels[action]}该举报？${banJob ? '并同时下架对应岗位' : ''}`)) return;
+  await api('/admin/reports/' + id + '/handle', { method: 'POST', body: JSON.stringify({ action, ban_job: banJob }) });
+  loadReports();
+  if (banJob) { loadReviews(); loadJobs(); }
 }
 
 // Jobs
@@ -218,7 +321,7 @@ function renderJobs() {
     if (term && !j.title.toLowerCase().includes(term)) return false;
     return true;
   });
-  const badge = { active:'bg-emerald-100 text-emerald-700', pending:'bg-amber-100 text-amber-700', banned:'bg-red-100 text-red-700' };
+  const badge = { active:'bg-emerald-100 text-emerald-700', pending:'bg-amber-100 text-amber-700', banned:'bg-red-100 text-red-700', rejected:'bg-slate-100 text-slate-700' };
   tbody.innerHTML = filtered.map(j => `
     <tr class="hover:bg-slate-50">
       <td class="px-5 py-4"><div class="font-medium">${j.title}</div><div class="text-slate-500 text-xs">${j.company_name}</div></td>
@@ -254,7 +357,7 @@ function editJob(j) {
   document.getElementById('jobResp').value=(j.responsibilities||[]).join('\n');
   document.getElementById('jobTags').value=(j.tags||[]).join(',');
 }
-async function deleteJob(id) { if(!confirm('确定删除？'))return; await api('/admin/jobs/'+id,{method:'DELETE'}); loadJobs(); }
+async function deleteJob(id) { if(!confirm('确定删除？'))return; await api('/admin/jobs/'+id,{method:'DELETE'}); loadJobs(); loadReviews(); }
 document.getElementById('jobForm').addEventListener('submit', async e => {
   e.preventDefault();
   const id = document.getElementById('jobId').value;
@@ -274,7 +377,7 @@ document.getElementById('jobForm').addEventListener('submit', async e => {
   };
   if (id) { await api('/admin/jobs/'+id, {method:'PATCH', body:JSON.stringify(body)}); }
   else { await api('/admin/jobs', {method:'POST', body:JSON.stringify(body)}); }
-  closeJobModal(); loadJobs();
+  closeJobModal(); loadJobs(); loadReviews();
 });
 
 // Countries
@@ -351,7 +454,7 @@ document.getElementById('configForm').addEventListener('submit', async e => {
 });
 
 // Init
-loadJobs();
+loadReviews();
 </script>
 </body>
 </html>

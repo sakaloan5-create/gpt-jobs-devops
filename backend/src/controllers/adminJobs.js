@@ -46,4 +46,22 @@ async function adminListJobs(req, res, next) {
   }
 }
 
-module.exports = { createJob, updateJob, deleteJob, adminListJobs };
+async function reviewJob(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { action } = req.body || {};
+    if (!id) {
+      return error(res, 'Missing required param: id', 400);
+    }
+    if (!['approve', 'reject', 'ban'].includes(action)) {
+      return error(res, 'Invalid action. Must be approve|reject|ban', 400);
+    }
+    const statusMap = { approve: 'active', reject: 'rejected', ban: 'banned' };
+    const data = await adminJobsService.updateJob(id, { status: statusMap[action] });
+    return success(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { createJob, updateJob, deleteJob, adminListJobs, reviewJob };

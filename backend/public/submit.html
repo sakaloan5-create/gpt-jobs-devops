@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发布兼职岗位 - GPTJobs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] } } } }
+</script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div class="max-w-2xl mx-auto px-6 py-10">
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    <h1 class="text-2xl font-bold mb-2">发布兼职岗位</h1>
+    <p class="text-slate-500 text-sm mb-6">填写岗位信息，提交后由平台审核上架</p>
+
+    <form id="submitForm" class="space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">岗位标题 <span class="text-red-500">*</span></label>
+          <input id="title" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">公司名称 <span class="text-red-500">*</span></label>
+          <input id="company_name" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">国家 <span class="text-red-500">*</span></label>
+          <select id="country" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="">请选择</option>
+            <option value="BR">巴西 (BR)</option>
+            <option value="PH">菲律宾 (PH)</option>
+            <option value="ID">印尼 (ID)</option>
+            <option value="MX">墨西哥 (MX)</option>
+            <option value="IN">印度 (IN)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">城市 <span class="text-red-500">*</span></label>
+          <input id="city" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">薪资 <span class="text-red-500">*</span></label>
+          <input id="salary" placeholder="如: BRL 150/day" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">工作类型</label>
+          <select id="job_type" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <option>Part-time</option>
+            <option>Full-time</option>
+            <option>Contract</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">联系平台</label>
+          <select id="contact_platform" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="telegram">Telegram</option>
+            <option value="email">Email</option>
+            <option value="external_url">External URL</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">联系链接 <span class="text-red-500">*</span></label>
+          <input id="contact_link" placeholder="https://wa.me/..." required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">岗位描述 <span class="text-red-500">*</span></label>
+        <textarea id="description" rows="4" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">岗位要求 (每行一个)</label>
+          <textarea id="requirements" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">工作职责 (每行一个)</label>
+          <textarea id="responsibilities" rows="3" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">标签 (逗号分隔)</label>
+        <input id="tags" placeholder="retail, parttime, weekend" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+
+      <div class="pt-2">
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg text-sm">提交审核</button>
+      </div>
+    </form>
+
+    <div id="successMsg" class="hidden mt-6 p-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
+      ✅ 岗位提交成功！平台将在 24 小时内完成审核，审核通过后将自动上架展示。
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('submitForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    title: document.getElementById('title').value,
+    company_name: document.getElementById('company_name').value,
+    country: document.getElementById('country').value,
+    city: document.getElementById('city').value,
+    salary: document.getElementById('salary').value,
+    job_type: document.getElementById('job_type').value,
+    contact_platform: document.getElementById('contact_platform').value,
+    contact_link: document.getElementById('contact_link').value,
+    description: document.getElementById('description').value,
+    requirements: document.getElementById('requirements').value.split('\n').filter(Boolean),
+    responsibilities: document.getElementById('responsibilities').value.split('\n').filter(Boolean),
+    tags: document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean),
+    status: 'pending',
+    report_enabled: true,
+  };
+  try {
+    const res = await fetch('/api/admin/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      alert(json.message || '提交失败');
+      return;
+    }
+    document.getElementById('submitForm').reset();
+    document.getElementById('successMsg').classList.remove('hidden');
+    setTimeout(() => document.getElementById('successMsg').classList.add('hidden'), 5000);
+  } catch (err) {
+    alert('网络错误，请重试');
+  }
+});
+</script>
+</body>
+</html>

@@ -26,6 +26,12 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/admin/index.html'));
 });
 
+// Employer submission page
+app.use('/submit', express.static(path.join(__dirname, '../public/submit.html')));
+app.get('/submit', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/submit.html'));
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ code: 404, message: 'Not found', data: null });

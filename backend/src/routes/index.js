@@ -19,6 +19,11 @@ router.post('/admin/jobs', adminJobsController.createJob);
 router.get('/admin/jobs', adminJobsController.adminListJobs);
 router.patch('/admin/jobs/:id', adminJobsController.updateJob);
 router.delete('/admin/jobs/:id', adminJobsController.deleteJob);
+router.patch('/admin/jobs/:id/review', adminJobsController.reviewJob);
+
+// Admin Report APIs
+router.get('/admin/reports', reportsController.listReports);
+router.post('/admin/reports/:id/handle', reportsController.handleReport);
 
 // Admin Country & Config APIs
 router.get('/admin/countries', countriesController.listCountries);

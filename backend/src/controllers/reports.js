@@ -14,4 +14,27 @@ async function createReport(req, res, next) {
   }
 }
 
-module.exports = { createReport };
+async function listReports(req, res, next) {
+  try {
+    const { status, page, page_size } = req.query;
+    const data = await reportsService.listReports({ status, page, page_size });
+    return success(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function handleReport(req, res, next) {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return error(res, 'Missing required param: id', 400);
+    }
+    const data = await reportsService.handleReport(id, req.body);
+    return success(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { createReport, listReports, handleReport };
