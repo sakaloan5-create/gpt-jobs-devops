@@ -45,6 +45,10 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      - name: Enable required APIs
+        run: |
+          gcloud services enable artifactregistry.googleapis.com --project ${{ secrets.GCP_PROJECT_ID }}
+
       - name: Ensure Artifact Registry repository exists
         run: |
           gcloud artifacts repositories create cloudrun \
