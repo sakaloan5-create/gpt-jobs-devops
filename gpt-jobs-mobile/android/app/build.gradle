@@ -155,6 +155,13 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'com.facebook.react:react-android:0.76.5'
+        force 'com.facebook.react:hermes-android:0.76.5'
+    }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
@@ -186,7 +193,7 @@ dependencies {
 
 // Use NDK 28's libc++_shared.so for 16 KB alignment in the final APK while keeping NDK 26 for compilation compatibility.
 def fixLibcxxSo() {
-    def ndkLibc = "/Users/laosan/Library/Android/sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
+    def ndkLibc = "/Users/laosan/Library/Android/sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so"
     def mergedDir = file("${buildDir}/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a")
     if (mergedDir.exists()) {
         ant.copy(file: ndkLibc, tofile: "${mergedDir}/libc++_shared.so", overwrite: true)
@@ -197,12 +204,80 @@ def fixLibcxxSo() {
     }
 }
 
+// Use Python to patch ELF p_align to 16KB for all .so files
+def alignNativeLibsTo16KB() {
+    def pythonCmd = 'python3'
+    def script = """
+import os, sys
+
+def patch_elf(path):
+    with open(path, 'r+b') as f:
+        data = f.read(64)
+        if data[:4] != b'\\x7fELF':
+            return False
+        ei_class = data[4]
+        if ei_class == 1:
+            phoff = int.from_bytes(data[28:32], 'little')
+            phentsize = int.from_bytes(data[42:44], 'little')
+            phnum = int.from_bytes(data[44:46], 'little')
+        else:
+            phoff = int.from_bytes(data[32:40], 'little')
+            phentsize = int.from_bytes(data[54:56], 'little')
+            phnum = int.from_bytes(data[56:58], 'little')
+        f.seek(phoff)
+        for _ in range(phnum):
+            pos = f.tell()
+            entry = f.read(phentsize)
+            p_type = int.from_bytes(entry[0:4], 'little')
+            if p_type == 1:  # PT_LOAD
+                if ei_class == 1:
+                    align_pos = pos + 28
+                else:
+                    align_pos = pos + 48
+                f.seek(align_pos)
+                f.write((16384).to_bytes(8 if ei_class == 2 else 4, 'little'))
+        return True
+
+base = sys.argv[1]
+for root, _, files in os.walk(base):
+    for name in files:
+        if name.endswith('.so'):
+            patch_elf(os.path.join(root, name))
+"""
+    def dirs = [
+        file("${buildDir}/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a"),
+        file("${buildDir}/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/arm64-v8a")
+    ]
+    dirs.each { dir ->
+        if (dir.exists()) {
+            exec {
+                commandLine pythonCmd, '-c', script, dir.absolutePath
+                ignoreExitValue true
+            }
+        }
+    }
+}
+
 afterEvaluate {
+    tasks.matching { it.name == "generateAutolinkingPackageList" }.all {
+        doLast {
+            def packageList = file("${project.buildDir}/generated/autolinking/src/main/java/com/facebook/react/PackageList.java")
+            if (packageList.exists()) {
+                packageList.text = packageList.text.replace('import expo.core.ExpoModulesPackage;', 'import expo.modules.ExpoModulesPackage;')
+            }
+        }
+    }
     tasks.named("mergeReleaseNativeLibs").configure {
-        doLast { fixLibcxxSo() }
+        doLast {
+            fixLibcxxSo()
+            alignNativeLibsTo16KB()
+        }
     }
     tasks.named("stripReleaseDebugSymbols").configure {
-        doLast { fixLibcxxSo() }
+        doLast {
+            fixLibcxxSo()
+            alignNativeLibsTo16KB()
+        }
     }
 }
 
