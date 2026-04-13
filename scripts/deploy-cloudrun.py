@@ -33,7 +33,9 @@ service_body = {
                 'limits': {'cpu': '1', 'memory': '512Mi'}
             },
         }],
-        'maxInstanceCount': 10,
+        'scaling': {
+            'maxInstanceCount': 10,
+        },
         'timeout': '300s',
     },
     'traffic': [
