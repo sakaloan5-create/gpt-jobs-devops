@@ -15,10 +15,14 @@ on:
 env:
   GCP_REGION: asia-east1
   SERVICE_NAME: gpt-jobs-api
+  IMAGE_NAME: ghcr.io/sakaloan5-create/gpt-jobs-api
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,12 +49,15 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Build & Push Container Image
+      - name: Log in to GitHub Container Registry
         run: |
-          IMAGE_TAG=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloudrun/${{ env.SERVICE_NAME }}:${{ github.sha }}
-          gcloud builds submit ./backend \
-            --tag $IMAGE_TAG \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & Push Container Image to GHCR
+        run: |
+          IMAGE_TAG=${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker build -t $IMAGE_TAG ./backend
+          docker push $IMAGE_TAG
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
 
       - name: Deploy to Cloud Run
