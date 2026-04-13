@@ -49,7 +49,7 @@ jobs:
       - name: Build & Push Container Image
         run: |
           IMAGE_TAG=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/cloudrun/${{ env.SERVICE_NAME }}:${{ github.sha }}
-          gcloud builds submit . \
+          gcloud builds submit ./backend \
             --tag $IMAGE_TAG \
             --project ${{ secrets.GCP_PROJECT_ID }}
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
