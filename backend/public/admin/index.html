@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>GPTJobs 管理后台</title>
 <script src="./tw-cdn.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -113,22 +116,19 @@ tailwind.config = {
     <!-- Sidebar -->
     <aside class="w-60 bg-slate-900 border-r border-slate-800 flex flex-col pt-4 pb-4">
       <nav class="flex-1 px-3 space-y-1">
-        <div class="sidebar-link active" data-tab="review" onclick="App.switchTab('review')">
+        <div class="sidebar-link active" data-tab="review" >
           <span>审核中心</span>
           <span id="badge-review" class="ml-auto hidden min-w-[1.25rem] h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
         </div>
-        <div class="sidebar-link" data-tab="jobs" onclick="App.switchTab('jobs')">
+        <div class="sidebar-link" data-tab="jobs" >
           <span>岗位管理</span>
         </div>
-        <div class="sidebar-link" data-tab="reports" onclick="App.switchTab('reports')">
+        <div class="sidebar-link" data-tab="reports" >
           <span>举报处理</span>
           <span id="badge-reports" class="ml-auto hidden min-w-[1.25rem] h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
         </div>
         <div class="mt-6 mb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-widest">设置</div>
-        <div class="sidebar-link" data-tab="countries" onclick="App.switchTab('countries')">
-          <span>国家配置</span>
-        </div>
-        <div class="sidebar-link" data-tab="config" onclick="App.switchTab('config')">
+        <div class="sidebar-link" data-tab="config" >
           <span>应用配置</span>
         </div>
       </nav>
@@ -321,16 +321,16 @@ tailwind.config = {
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">国家 <span class="text-red-500">*</span></label>
-                  <select id="jobCountry" required class="w-full px-3 py-2"></select>
+                  <input id="jobCountry" required class="w-full px-3 py-2" placeholder="如：CN, US, 全球">
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">城市 <span class="text-red-500">*</span></label>
-                  <input id="jobCity" required class="w-full px-3 py-2">
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">城市</label>
+                  <input id="jobCity" class="w-full px-3 py-2" placeholder="可选">
                 </div>
               </div>
                <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">薪资 <span class="text-red-500">*</span></label>
-                <input id="jobSalary" required class="w-full px-3 py-2">
+                <input id="jobSalary" required class="w-full px-3 py-2" placeholder="如：35k-50k 或 $5000/month">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">工作类型</label>
@@ -383,6 +383,7 @@ tailwind.config = {
             <div class="grid grid-cols-2 gap-y-4 gap-x-5">
               <div>
                 <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">ISO 代码 <span class="text-red-500">*</span></label>
+                <input type="hidden" id="countryCodeOrig">
                 <input id="countryCode" required class="w-full px-3 py-2 uppercase">
               </div>
                <div>
@@ -563,11 +564,20 @@ const App = (() => {
 
   /* Config */
   const loadConfig = async () => { const res = await apiFetch('/admin/configs'); const cfg = res.data||{}; ['Search','Filter','Contact','Report','Share'].forEach(k => el('cfg'+k).checked = cfg[k.toLowerCase()+'_enabled']!==false && (cfg[k.toLowerCase()+'_enabled']||(k==='Contact'||k==='Report'))); el('cfgVersion').value = cfg.version||'1.0.0'; };
-  el('configForm').addEventListener('submit', async e => { e.preventDefault(); const b={search_enabled:el('cfgSearch').checked, filter_enabled:el('cfgFilter').checked, contact_enabled:el('cfgContact').checked, report_enabled:el('cfgReport').checked, share_enabled:el('cfgShare').checked, version:el('cfgVersion').value}; await apiFetch('/admin/configs',{method:'POST',body:JSON.stringify(b)}); showToast('配置已保存'); });
-
-  el('jobSearch').addEventListener('input', renderJobs); el('jobFilterCountry').addEventListener('change', renderJobs); el('jobFilterStatus').addEventListener('change', renderJobs);
-  return { init:()=>{switchTab('review');}, switchTab, setReportFilter, reviewAction, handleReport, openJobModal, closeJobModal, submitJob, deleteJob, openCountryModal, closeCountryModal, submitCountry, deleteCountry };
+  return { init:()=>{
+    switchTab('review');
+    bindSidebar();
+    el('configForm').addEventListener('submit', async e => { e.preventDefault(); const b={search_enabled:el('cfgSearch').checked, filter_enabled:el('cfgFilter').checked, contact_enabled:el('cfgContact').checked, report_enabled:el('cfgReport').checked, share_enabled:el('cfgShare').checked, version:el('cfgVersion').value}; await apiFetch('/admin/configs',{method:'POST',body:JSON.stringify(b)}); showToast('配置已保存'); });
+    el('jobSearch').addEventListener('input', renderJobs); el('jobFilterCountry').addEventListener('change', renderJobs); el('jobFilterStatus').addEventListener('change', renderJobs);
+  }, switchTab, setReportFilter, reviewAction, handleReport, openJobModal, closeJobModal, submitJob, deleteJob, openCountryModal, closeCountryModal, submitCountry, deleteCountry };
 })();
+window.App = App;
+function bindSidebar() {
+  document.querySelectorAll('.sidebar-link').forEach(el => {
+    const tab = el.dataset.tab;
+    if(tab) el.addEventListener('click', () => App.switchTab(tab));
+  });
+}
 document.addEventListener('DOMContentLoaded', App.init);
 </script>
 </body>

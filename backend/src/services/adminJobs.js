@@ -4,7 +4,7 @@ const { checkBlacklist } = require('../utils/filter');
 const JOBS_COLLECTION = 'jobs';
 
 function validateJob(data) {
-  const required = ['title', 'company_name', 'country', 'city', 'salary', 'job_type', 'description', 'contact_platform', 'contact_link'];
+  const required = ['title', 'company_name', 'country', 'salary', 'job_type', 'description', 'contact_platform', 'contact_link'];
   for (const key of required) {
     if (data[key] === undefined || data[key] === null || data[key] === '') {
       return { valid: false, message: `Missing required field: ${key}` };

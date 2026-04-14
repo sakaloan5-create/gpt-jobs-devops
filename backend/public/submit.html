@@ -100,20 +100,15 @@ tailwind.config = {
          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="relative">
               <label class="form-label">国家 <span class="text-red-500">*</span></label>
-              <select id="country" required class="form-input pr-10">
-                <option value="" disabled selected hidden>请选择国家</option>
-                <option value="BR">巴西</option><option value="PH">菲律宾</option><option value="ID">印度尼西亚</option>
-                <option value="MX">墨西哥</option><option value="IN">印度</option>
-              </select>
-              <div class="form-select-caret">▼</div>
+              <input id="country" required class="form-input" placeholder="如：CN, US, 全球">
             </div>
             <div>
-              <label class="form-label">城市 <span class="text-red-500">*</span></label>
-              <input id="city" required class="form-input" placeholder="例如：圣保罗">
+              <label class="form-label">城市</label>
+              <input id="city" class="form-input" placeholder="可选">
             </div>
             <div>
               <label class="form-label">薪资 / 待遇 <span class="text-red-500">*</span></label>
-              <input id="salary" required class="form-input" placeholder="例如：80,000 - 120,000">
+              <input id="salary" required class="form-input" placeholder="如：35k-50k 或 $5000/month">
             </div>
          </div>
 
