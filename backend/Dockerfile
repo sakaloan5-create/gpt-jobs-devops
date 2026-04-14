@@ -9,6 +9,11 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
+
+# Force cache bust for public files
+ARG BUILD_TIMESTAMP=unknown
+RUN echo "Build: $BUILD_TIMESTAMP"
+
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source code (excluding public, which is copied separately)
