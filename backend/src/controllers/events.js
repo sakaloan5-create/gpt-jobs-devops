@@ -37,7 +37,23 @@ async function getEventStats(req, res, next) {
   }
 }
 
+async function getJobStats(req, res, next) {
+  try {
+    const { start_date, end_date, country } = req.query;
+    
+    if (!start_date || !end_date) {
+      return error(res, 'Missing required query params: start_date, end_date', 400);
+    }
+    
+    const data = await eventsService.getJobStats(start_date, end_date, country);
+    return success(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createEvent,
-  getEventStats
+  getEventStats,
+  getJobStats
 };

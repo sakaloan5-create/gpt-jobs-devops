@@ -36,5 +36,6 @@ router.post('/admin/configs', adminConfigController.updateAdminConfig);
 // Events APIs
 router.post('/events', eventsController.createEvent);
 router.get('/admin/events/stats', eventsController.getEventStats);
+router.get('/admin/events/job-stats', eventsController.getJobStats);
 
 module.exports = router;
