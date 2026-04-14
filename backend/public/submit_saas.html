@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>提交岗位 - GPTJobs</title>
-<script src="./tw-cdn.js"></script>
+<title>Submit Job Posting - GPTJobs</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -21,7 +21,7 @@ tailwind.config = {
 </script>
 <style>
   body { background-color: #f8fafc; color: #334155; min-height: 100vh; }
-
+  
   /* Inputs */
   .form-input {
     width: 100%; background: #ffffff; border: 1px solid #cbd5e1; color: #334155;
@@ -35,7 +35,7 @@ tailwind.config = {
     position: absolute; right: 0.875rem; top: 50%; transform: translateY(-50%);
     pointer-events: none; color: #94a3b8;
   }
-
+  
   .form-label {
     display: block; font-size: 0.8125rem; font-weight: 600; color: #475569;
     margin-bottom: 0.375rem;
@@ -49,7 +49,7 @@ tailwind.config = {
   .btn-primary { background-color: #2563eb; color: #ffffff; border: 1px solid #2563eb; }
   .btn-primary:active { transform: scale(0.98); }
   .btn-primary:hover { background-color: #1d4ed8; }
-
+  
   #successMsg {
     opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
   }
@@ -62,78 +62,81 @@ tailwind.config = {
 <body class="flex flex-col py-10 px-4 sm:px-6 lg:px-8">
 
   <div class="max-w-4xl w-full mx-auto relative">
-
+    
     <!-- Success Message Overlay -->
     <div id="successMsg" class="absolute inset-0 z-20 flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 shadow-xl p-10 text-center flex hidden">
-      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6 text-2xl font-bold">✓</div>
-      <h3 class="text-2xl font-bold text-slate-800 mb-2">提交成功</h3>
-      <p class="text-slate-500 max-w-md mx-auto mb-8">您的岗位已提交，正在等待管理员审核。审核通过后将立即上线。</p>
-      <button onclick="location.reload()" class="btn btn-primary shadow-sm px-8">再提交一个</button>
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h3 class="text-2xl font-bold text-slate-800 mb-2">Submission Successful</h3>
+      <p class="text-slate-500 max-w-md mx-auto mb-8">Your job posting has been submitted and is currently pending review by our administration team. It will be live upon approval.</p>
+      <button onclick="location.reload()" class="btn btn-primary shadow-sm px-8">Submit Another Job</button>
     </div>
 
     <!-- Header -->
     <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">发布新岗位</h2>
-      <p class="mt-2 text-slate-500">在 GPTJobs 网络中触达最优秀的候选人。</p>
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-600 text-white font-bold tracking-widest mb-4 shadow-md">GP</div>
+      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Post a New Job</h2>
+      <p class="mt-2 text-slate-500">Reach the best candidates in the GPTJobs network.</p>
     </div>
 
     <!-- Main Card -->
     <div class="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden relative z-10 transition-opacity" id="formContainer">
        <div class="px-8 py-6 border-b border-slate-100 bg-slate-50">
-          <h3 class="font-semibold text-slate-800">岗位信息</h3>
-          <p class="text-sm text-slate-500">请提供准确的职位信息。</p>
+          <h3 class="font-semibold text-slate-800">Job Details</h3>
+          <p class="text-sm text-slate-500">Provide accurate information about the role.</p>
        </div>
 
        <form id="submitForm" class="p-8 space-y-8">
-
+         
          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="form-label">岗位名称 <span class="text-red-500">*</span></label>
-              <input id="title" required class="form-input" placeholder="例如：高级软件工程师">
+              <label class="form-label">Job Title <span class="text-red-500">*</span></label>
+              <input id="title" required class="form-input" placeholder="e.g. Senior Software Engineer">
             </div>
             <div>
-              <label class="form-label">公司名称 <span class="text-red-500">*</span></label>
-              <input id="company_name" required class="form-input" placeholder="例如：某某科技">
+              <label class="form-label">Company Name <span class="text-red-500">*</span></label>
+              <input id="company_name" required class="form-input" placeholder="e.g. Acme Corp">
             </div>
          </div>
 
          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="relative">
-              <label class="form-label">国家 <span class="text-red-500">*</span></label>
+              <label class="form-label">Country <span class="text-red-500">*</span></label>
               <select id="country" required class="form-input pr-10">
-                <option value="" disabled selected hidden>请选择国家</option>
-                <option value="BR">巴西</option><option value="PH">菲律宾</option><option value="ID">印度尼西亚</option>
-                <option value="MX">墨西哥</option><option value="IN">印度</option>
+                <option value="" disabled selected hidden>Select country</option>
+                <option value="BR">Brazil</option><option value="PH">Philippines</option><option value="ID">Indonesia</option>
+                <option value="MX">Mexico</option><option value="IN">India</option>
               </select>
-              <div class="form-select-caret">▼</div>
+              <div class="form-select-caret"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></div>
             </div>
             <div>
-              <label class="form-label">城市 <span class="text-red-500">*</span></label>
-              <input id="city" required class="form-input" placeholder="例如：圣保罗">
+              <label class="form-label">City <span class="text-red-500">*</span></label>
+              <input id="city" required class="form-input" placeholder="e.g. Sao Paulo">
             </div>
             <div>
-              <label class="form-label">薪资 / 待遇 <span class="text-red-500">*</span></label>
-              <input id="salary" required class="form-input" placeholder="例如：80,000 - 120,000">
+              <label class="form-label">Salary / Compensation <span class="text-red-500">*</span></label>
+              <input id="salary" required class="form-input" placeholder="e.g. $80,000 - $120,000">
             </div>
          </div>
 
          <div class="pt-6 border-t border-slate-100">
             <div class="mb-4">
-              <h3 class="font-semibold text-slate-800">要求与描述</h3>
+              <h3 class="font-semibold text-slate-800">Requirements & Description</h3>
             </div>
             <div class="space-y-6">
               <div>
-                <label class="form-label">岗位描述 <span class="text-red-500">*</span></label>
-                <textarea id="description" rows="4" required class="form-input resize-y" placeholder="请描述该职位..."></textarea>
+                <label class="form-label">Job Description <span class="text-red-500">*</span></label>
+                <textarea id="description" rows="4" required class="form-input resize-y" placeholder="Describe the role..."></textarea>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="form-label">岗位要求（每行一条）</label>
-                  <textarea id="requirements" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- 3年以上经验&#10;- 精通 React"></textarea>
+                  <label class="form-label">Requirements (one per line)</label>
+                  <textarea id="requirements" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- 3+ years experience&#10;- React proficiency"></textarea>
                 </div>
                 <div>
-                   <label class="form-label">岗位职责（每行一条）</label>
-                   <textarea id="responsibilities" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- 构建可扩展的 UI 组件&#10;- 指导初级开发者"></textarea>
+                   <label class="form-label">Responsibilities (one per line)</label>
+                   <textarea id="responsibilities" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- Build scalable UI components&#10;- Mentor junior devs"></textarea>
                 </div>
               </div>
             </div>
@@ -141,38 +144,38 @@ tailwind.config = {
 
          <div class="pt-6 border-t border-slate-100">
             <div class="mb-4">
-              <h3 class="font-semibold text-slate-800">申请设置</h3>
+              <h3 class="font-semibold text-slate-800">Application Settings</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                <div class="md:col-span-4 relative">
-                 <label class="form-label">工作类型</label>
+                 <label class="form-label">Job Type</label>
                  <select id="job_type" class="form-input pr-10">
-                   <option value="Full-time">全职</option><option value="Part-time">兼职</option><option value="Contract">合同</option>
+                   <option value="Full-time">Full-time</option><option value="Part-time">Part-time</option><option value="Contract">Contract</option>
                  </select>
-                 <div class="form-select-caret">▼</div>
+                 <div class="form-select-caret"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></div>
                </div>
                <div class="md:col-span-4 relative">
-                  <label class="form-label">联系平台</label>
+                  <label class="form-label">Contact Platform</label>
                   <select id="contact_platform" class="form-input pr-10">
-                    <option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">邮件</option><option value="external_url">外部链接</option>
+                    <option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="external_url">External Link</option>
                   </select>
-                  <div class="form-select-caret">▼</div>
+                  <div class="form-select-caret"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></div>
                </div>
                <div class="md:col-span-4">
-                  <label class="form-label">联系链接 <span class="text-red-500">*</span></label>
-                  <input id="contact_link" required class="form-input" placeholder="例如：https://wa.me/...">
+                  <label class="form-label">Contact Target (Link) <span class="text-red-500">*</span></label>
+                  <input id="contact_link" required class="form-input" placeholder="e.g. https://wa.me/...">
                </div>
                <div class="md:col-span-12">
-                  <label class="form-label">标签（逗号分隔）</label>
-                  <input id="tags" class="form-input" placeholder="例如：远程, 工程师, 高级">
+                  <label class="form-label">Tags (comma separated)</label>
+                  <input id="tags" class="form-input" placeholder="e.g. Remote, Engineering, Senior">
                </div>
             </div>
          </div>
 
          <div class="pt-4 flex justify-end">
             <button type="submit" class="btn btn-primary w-full sm:w-auto px-8 shadow-sm">
-               <span id="btnText">提交岗位</span>
-               <span id="btnLoader" class="hidden">⏳</span>
+               <span id="btnText">Submit Job Posting</span>
+               <svg id="btnLoader" class="hidden animate-spin h-4 w-4 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </button>
          </div>
 
@@ -183,17 +186,17 @@ tailwind.config = {
 <script>
 document.getElementById('submitForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-
+  
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const txtSpan = document.getElementById('btnText');
   const loader = document.getElementById('btnLoader');
-
-  txtSpan.innerText = '提交中...';
+  
+  txtSpan.innerText = 'Submitting...';
   loader.classList.remove('hidden');
   submitBtn.disabled = true; submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
 
   const getLines = (id) => document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(Boolean);
-
+  
   const body = {
     title: document.getElementById('title').value,
     company_name: document.getElementById('company_name').value,
@@ -214,7 +217,7 @@ document.getElementById('submitForm').addEventListener('submit', async (e) => {
     const res = await fetch('/api/admin/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const json = await res.json().catch(()=>({}));
     if (!res.ok) {
-      alert(json.message || '提交失败，请重试。');
+      alert(json.message || 'Submission failed. Please try again.');
     } else {
       setTimeout(() => {
         document.getElementById('formContainer').style.opacity = '0';
@@ -225,10 +228,10 @@ document.getElementById('submitForm').addEventListener('submit', async (e) => {
       }, 300);
     }
   } catch (err) {
-    alert('网络错误，请重试。');
+    alert('A network error occurred. Please try again.');
   } finally {
     if(document.getElementById('formContainer').style.opacity !== '0') {
-      txtSpan.innerText = '提交岗位';
+      txtSpan.innerText = 'Submit Job Posting';
       loader.classList.add('hidden');
       submitBtn.disabled = false; submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
     }

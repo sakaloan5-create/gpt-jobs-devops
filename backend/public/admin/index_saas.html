@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GPTJobs 管理后台</title>
-<script src="./tw-cdn.js"></script>
+<title>GPTJobs SaaS Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -21,7 +21,7 @@ tailwind.config = {
 </script>
 <style>
   html, body { height: 100%; background-color: #f8fafc; color: #334155; }
-
+  
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -97,12 +97,13 @@ tailwind.config = {
   <!-- Top Navigation (SaaS style) -->
   <header class="h-14 bg-slate-900 text-white flex items-center justify-between px-6 shrink-0 border-b border-slate-800">
     <div class="flex items-center gap-2">
-      <span class="font-semibold text-base tracking-tight">GPTJobs 管理后台</span>
+      <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white tracking-widest text-xs">GP</div>
+      <span class="font-semibold text-base tracking-tight">GPTJobs Console</span>
     </div>
     <div class="flex items-center gap-4 text-slate-300">
       <div class="flex items-center gap-2">
          <span class="w-2 h-2 rounded-full bg-green-400"></span>
-         <span class="text-xs font-medium">系统运行正常</span>
+         <span class="text-xs font-medium">System Operational</span>
       </div>
       <div class="w-px h-5 bg-slate-700"></div>
       <div class="w-7 h-7 bg-slate-800 rounded-full flex items-center justify-center text-xs font-bold border border-slate-700">A</div>
@@ -114,22 +115,27 @@ tailwind.config = {
     <aside class="w-60 bg-slate-900 border-r border-slate-800 flex flex-col pt-4 pb-4">
       <nav class="flex-1 px-3 space-y-1">
         <div class="sidebar-link active" data-tab="review" onclick="App.switchTab('review')">
-          <span>审核中心</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Reviews / Audit</span>
           <span id="badge-review" class="ml-auto hidden min-w-[1.25rem] h-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
         </div>
         <div class="sidebar-link" data-tab="jobs" onclick="App.switchTab('jobs')">
-          <span>岗位管理</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Job Listings</span>
         </div>
         <div class="sidebar-link" data-tab="reports" onclick="App.switchTab('reports')">
-          <span>举报处理</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span>Incidents</span>
           <span id="badge-reports" class="ml-auto hidden min-w-[1.25rem] h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">0</span>
         </div>
-        <div class="mt-6 mb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-widest">设置</div>
+        <div class="mt-6 mb-2 px-3 text-xs font-semibold text-slate-500 uppercase tracking-widest">Settings</div>
         <div class="sidebar-link" data-tab="countries" onclick="App.switchTab('countries')">
-          <span>国家配置</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Regions</span>
         </div>
         <div class="sidebar-link" data-tab="config" onclick="App.switchTab('config')">
-          <span>应用配置</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Preferences</span>
         </div>
       </nav>
     </aside>
@@ -139,35 +145,35 @@ tailwind.config = {
        <!-- Header Banner -->
       <div class="bg-white border-b border-slate-200 px-8 py-5 shrink-0 flex items-center justify-between">
         <div>
-          <h1 id="pageTitle" class="text-xl font-semibold text-slate-900">审核中心</h1>
-          <p id="pageSubtitle" class="text-sm text-slate-500 mt-1">管理招聘方提交的待审核岗位。</p>
+          <h1 id="pageTitle" class="text-xl font-semibold text-slate-900">Reviews & Audit</h1>
+          <p id="pageSubtitle" class="text-sm text-slate-500 mt-1">Manage pending submissions from recruiters.</p>
         </div>
         <div id="headerActions"></div>
       </div>
 
       <!-- scrollable content -->
       <div class="flex-1 overflow-auto p-8">
-
+        
         <!-- REVIEW PANEL -->
         <div id="panel-review" class="tab-panel active">
           <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
              <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center rounded-t-lg">
-                <span class="font-medium text-slate-800">待审核列表</span>
-                <span id="reviewStat" class="text-xs font-medium text-slate-500">0 条</span>
+                <span class="font-medium text-slate-800">Pending Workflow</span>
+                <span id="reviewStat" class="text-xs font-medium text-slate-500">0 Items</span>
              </div>
              <table class="w-full text-left">
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th class="px-6 py-3 font-medium">岗位 / 公司</th>
-                    <th class="px-6 py-3 font-medium">地区</th>
-                    <th class="px-6 py-3 font-medium">薪资</th>
-                    <th class="px-6 py-3 font-medium">提交时间</th>
-                    <th class="px-6 py-3 font-medium text-right">操作</th>
+                    <th class="px-6 py-3 font-medium">Job Title / Company</th>
+                    <th class="px-6 py-3 font-medium">Region</th>
+                    <th class="px-6 py-3 font-medium">Compensation</th>
+                    <th class="px-6 py-3 font-medium">Submitted</th>
+                    <th class="px-6 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="reviewTable" class="divide-y divide-slate-100 bg-white"></tbody>
              </table>
-             <div id="reviewEmpty" class="hidden py-16 text-center text-slate-400">暂无待审核岗位</div>
+             <div id="reviewEmpty" class="hidden py-16 text-center text-slate-400">All caught up! No pending jobs.</div>
           </div>
         </div>
 
@@ -176,33 +182,33 @@ tailwind.config = {
            <!-- Filters -->
            <div class="bg-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6 flex flex-wrap items-center gap-4">
               <div class="relative w-64">
-                <input id="jobSearch" type="text" placeholder="搜索岗位或公司名称..." class="w-full pl-3 pr-4 py-2 border border-slate-300 rounded-md text-sm">
+                <input id="jobSearch" type="text" placeholder="Search title or company..." class="w-full pl-3 pr-4 py-2 border border-slate-300 rounded-md text-sm">
               </div>
               <select id="jobFilterCountry" class="py-2 px-3 border border-slate-300 rounded-md text-sm text-slate-700 w-32"></select>
               <select id="jobFilterStatus" class="py-2 px-3 border border-slate-300 rounded-md text-sm text-slate-700 w-32">
-                <option value="">全部状态</option>
-                <option value="active">已通过</option>
-                <option value="pending">待审核</option>
-                <option value="banned">已封禁</option>
-                <option value="rejected">已拒绝</option>
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="banned">Banned</option>
+                <option value="rejected">Rejected</option>
               </select>
               <div class="flex-1"></div>
-              <button onclick="App.openJobModal()" class="btn btn-primary shadow-sm">+ 新增岗位</button>
+              <button onclick="App.openJobModal()" class="btn btn-primary shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg> New Listing</button>
            </div>
-
+           
            <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
              <table class="w-full text-left">
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th class="px-6 py-3 font-medium">岗位信息</th>
-                    <th class="px-6 py-3 font-medium">地点</th>
-                    <th class="px-6 py-3 font-medium">状态</th>
-                    <th class="px-6 py-3 font-medium text-right">设置</th>
+                    <th class="px-6 py-3 font-medium">Job Details</th>
+                    <th class="px-6 py-3 font-medium">Location</th>
+                    <th class="px-6 py-3 font-medium">Status</th>
+                    <th class="px-6 py-3 font-medium text-right">Settings</th>
                   </tr>
                 </thead>
                 <tbody id="jobTable" class="divide-y divide-slate-100 bg-white"></tbody>
              </table>
-             <div id="jobEmpty" class="hidden py-16 text-center text-slate-400">没有符合条件的岗位</div>
+             <div id="jobEmpty" class="hidden py-16 text-center text-slate-400">No jobs match your criteria.</div>
            </div>
         </div>
 
@@ -210,44 +216,44 @@ tailwind.config = {
         <div id="panel-reports" class="tab-panel">
           <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
              <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center rounded-t-lg">
-                <span class="font-medium text-slate-800">举报队列</span>
+                <span class="font-medium text-slate-800">Incident Queue</span>
                 <div class="flex gap-2">
-                  <button onclick="App.setReportFilter('')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium bg-slate-200 text-slate-800" data-filter="">全部</button>
-                  <button onclick="App.setReportFilter('pending')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="pending">待处理</button>
-                  <button onclick="App.setReportFilter('resolved')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="resolved">已处理</button>
+                  <button onclick="App.setReportFilter('')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium bg-slate-200 text-slate-800" data-filter="">All</button>
+                  <button onclick="App.setReportFilter('pending')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="pending">Pending</button>
+                  <button onclick="App.setReportFilter('resolved')" class="report-filter-btn px-3 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="resolved">Resolved</button>
                 </div>
              </div>
              <table class="w-full text-left">
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                   <tr>
-                    <th class="px-6 py-3 font-medium">类型</th>
-                    <th class="px-6 py-3 font-medium">详情</th>
-                    <th class="px-6 py-3 font-medium">关联 ID</th>
-                    <th class="px-6 py-3 font-medium">状态</th>
-                    <th class="px-6 py-3 font-medium text-right">处理</th>
+                    <th class="px-6 py-3 font-medium">Category</th>
+                    <th class="px-6 py-3 font-medium">Details</th>
+                    <th class="px-6 py-3 font-medium">Entity ID</th>
+                    <th class="px-6 py-3 font-medium">State</th>
+                    <th class="px-6 py-3 font-medium text-right">Resolve</th>
                   </tr>
                 </thead>
                 <tbody id="reportTable" class="divide-y divide-slate-100 bg-white"></tbody>
              </table>
-             <div id="reportEmpty" class="hidden py-16 text-center text-slate-400">暂无举报记录</div>
+             <div id="reportEmpty" class="hidden py-16 text-center text-slate-400">Zero active incidents.</div>
           </div>
         </div>
 
         <!-- COUNTRIES -->
         <div id="panel-countries" class="tab-panel">
            <div class="mb-4 flex justify-between items-center">
-             <div class="text-slate-500">配置地区与货币回退规则。</div>
-             <button onclick="App.openCountryModal()" class="btn btn-secondary shadow-sm">添加地区</button>
+             <div class="text-slate-500">Configure regions and currency failovers.</div>
+             <button onclick="App.openCountryModal()" class="btn btn-secondary shadow-sm">Add Region</button>
            </div>
            <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
              <table class="w-full text-left">
                 <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
                   <tr>
                     <th class="px-6 py-3 font-medium">ISO</th>
-                    <th class="px-6 py-3 font-medium">名称</th>
-                    <th class="px-6 py-3 font-medium">货币</th>
-                    <th class="px-6 py-3 font-medium">回退顺序</th>
-                    <th class="px-6 py-3 font-medium text-right">操作</th>
+                    <th class="px-6 py-3 font-medium">Name</th>
+                    <th class="px-6 py-3 font-medium">Currency</th>
+                    <th class="px-6 py-3 font-medium">Fallback Sequence</th>
+                    <th class="px-6 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="countryTable" class="divide-y divide-slate-100 bg-white"></tbody>
@@ -260,36 +266,36 @@ tailwind.config = {
           <div class="max-w-3xl">
              <form id="configForm" class="bg-white border border-slate-200 rounded-lg shadow-sm">
                <div class="p-6 border-b border-slate-100">
-                  <h3 class="font-medium text-slate-800 mb-4">功能开关</h3>
-                  <div class="flex flex-col gap-4">
+                  <h3 class="font-medium text-slate-800 mb-4">Module Toggles</h3>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6">
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="checkbox" id="cfgSearch" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                      <span class="text-slate-700 group-hover:text-slate-900">搜索功能</span>
+                      <span class="text-slate-700 group-hover:text-slate-900">Search Feature</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="checkbox" id="cfgFilter" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                      <span class="text-slate-700 group-hover:text-slate-900">高级筛选</span>
+                      <span class="text-slate-700 group-hover:text-slate-900">Advanced Filters</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="checkbox" id="cfgContact" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                      <span class="text-slate-700 group-hover:text-slate-900">直接联系</span>
+                      <span class="text-slate-700 group-hover:text-slate-900">Direct Contact</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="checkbox" id="cfgReport" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                      <span class="text-slate-700 group-hover:text-slate-900">举报功能</span>
+                      <span class="text-slate-700 group-hover:text-slate-900">Report Abuse</span>
                     </label>
                     <label class="flex items-center gap-3 cursor-pointer group">
                       <input type="checkbox" id="cfgShare" class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
-                      <span class="text-slate-700 group-hover:text-slate-900">社交分享</span>
+                      <span class="text-slate-700 group-hover:text-slate-900">Social Share</span>
                     </label>
                   </div>
                </div>
                <div class="p-6">
-                 <h3 class="font-medium text-slate-800 mb-4">应用版本</h3>
+                 <h3 class="font-medium text-slate-800 mb-4">Application Version</h3>
                  <input id="cfgVersion" class="w-64 border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700">
                </div>
                <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end rounded-b-lg">
-                  <button type="submit" class="btn btn-primary shadow-sm">保存配置</button>
+                  <button type="submit" class="btn btn-primary shadow-sm">Save Preferences</button>
                </div>
              </form>
           </div>
@@ -303,71 +309,71 @@ tailwind.config = {
   <div id="jobModal" class="modal-overlay">
     <div class="modal-content w-full max-w-4xl max-h-[90vh] flex flex-col">
        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-         <h2 id="jobModalTitle" class="text-lg font-semibold text-slate-800">岗位详情</h2>
-         <button onclick="App.closeJobModal()" class="text-slate-400 hover:text-slate-600 text-xl">×</button>
+         <h2 id="jobModalTitle" class="text-lg font-semibold text-slate-800">Job Detail</h2>
+         <button onclick="App.closeJobModal()" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
        </div>
        <div class="p-6 overflow-y-auto flex-1">
          <form id="jobForm" class="space-y-6">
             <input type="hidden" id="jobId">
             <div class="grid grid-cols-2 gap-x-6 gap-y-5">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">岗位名称 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Job Title <span class="text-red-500">*</span></label>
                 <input id="jobTitle" required class="w-full px-3 py-2">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">公司名称 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Company <span class="text-red-500">*</span></label>
                 <input id="jobCompany" required class="w-full px-3 py-2">
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">国家 <span class="text-red-500">*</span></label>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Country <span class="text-red-500">*</span></label>
                   <select id="jobCountry" required class="w-full px-3 py-2"></select>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">城市 <span class="text-red-500">*</span></label>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">City <span class="text-red-500">*</span></label>
                   <input id="jobCity" required class="w-full px-3 py-2">
                 </div>
               </div>
                <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">薪资 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Salary <span class="text-red-500">*</span></label>
                 <input id="jobSalary" required class="w-full px-3 py-2">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">工作类型</label>
-                <select id="jobType" class="w-full px-3 py-2"><option value="Part-time">兼职</option><option value="Full-time">全职</option><option value="Contract">合同</option></select>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Term</label>
+                <select id="jobType" class="w-full px-3 py-2"><option value="Part-time">Part-time</option><option value="Full-time">Full-time</option><option value="Contract">Contract</option></select>
               </div>
                <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">联系平台</label>
-                <select id="jobPlatform" class="w-full px-3 py-2"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">邮件</option><option value="external_url">外部链接</option></select>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Platform</label>
+                <select id="jobPlatform" class="w-full px-3 py-2"><option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="external_url">Link</option></select>
               </div>
               <div class="col-span-2">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">联系链接 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Target URL <span class="text-red-500">*</span></label>
                 <input id="jobLink" required class="w-full px-3 py-2 text-blue-600">
               </div>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">详细描述 <span class="text-red-500">*</span></label>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Detailed Description <span class="text-red-500">*</span></label>
               <textarea id="jobDesc" rows="3" required class="w-full px-3 py-2 text-sm"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-6">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">岗位要求</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Requirements</label>
                 <textarea id="jobReqs" rows="4" class="w-full px-3 py-2 text-sm text-slate-600"></textarea>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">岗位职责</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Duties</label>
                 <textarea id="jobResp" rows="4" class="w-full px-3 py-2 text-sm text-slate-600"></textarea>
               </div>
             </div>
              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">标签（逗号分隔）</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">Tags (CSV)</label>
                 <input id="jobTags" class="w-full px-3 py-2 text-sm">
             </div>
          </form>
        </div>
        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 rounded-b-lg">
-          <button type="button" onclick="App.closeJobModal()" class="btn btn-secondary shadow-sm">取消</button>
-          <button type="button" onclick="App.submitJob()" class="btn btn-primary shadow-sm">保存</button>
+          <button type="button" onclick="App.closeJobModal()" class="btn btn-secondary shadow-sm">Cancel</button>
+          <button type="button" onclick="App.submitJob()" class="btn btn-primary shadow-sm">Save Changes</button>
        </div>
     </div>
   </div>
@@ -375,45 +381,46 @@ tailwind.config = {
    <div id="countryModal" class="modal-overlay">
     <div class="modal-content w-full max-w-lg flex flex-col">
        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
-         <h2 id="countryModalTitle" class="text-lg font-semibold text-slate-800">地区配置</h2>
-         <button onclick="App.closeCountryModal()" class="text-slate-400 hover:text-slate-600 text-xl">×</button>
+         <h2 id="countryModalTitle" class="text-lg font-semibold text-slate-800">Region Configuration</h2>
+         <button onclick="App.closeCountryModal()" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
        </div>
        <div class="p-6 overflow-y-auto">
          <form id="countryForm" class="space-y-5">
             <div class="grid grid-cols-2 gap-y-4 gap-x-5">
               <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">ISO 代码 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">ISO Code <span class="text-red-500">*</span></label>
                 <input id="countryCode" required class="w-full px-3 py-2 uppercase">
               </div>
                <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">名称 <span class="text-red-500">*</span></label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">Name <span class="text-red-500">*</span></label>
                 <input id="countryName" required class="w-full px-3 py-2">
               </div>
                <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">货币</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">Currency</label>
                 <input id="countryCurrency" class="w-full px-3 py-2">
               </div>
               <div class="col-span-2">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">支持链接</label>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">Support Link</label>
                 <input id="countrySupport" class="w-full px-3 py-2">
               </div>
               <div class="col-span-2">
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">回退顺序（逗号分隔）</label>
-                <input id="countryFallback" class="w-full px-3 py-2 uppercase placeholder-slate-400" placeholder="例如：BR,PH">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase">Fallback Order (CSV)</label>
+                <input id="countryFallback" class="w-full px-3 py-2 uppercase placeholder-slate-400" placeholder="e.g. BR,PH">
               </div>
             </div>
          </form>
        </div>
        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 rounded-b-lg">
-          <button type="button" onclick="App.closeCountryModal()" class="btn btn-secondary shadow-sm">取消</button>
-          <button type="button" onclick="App.submitCountry()" class="btn btn-primary shadow-sm">保存配置</button>
+          <button type="button" onclick="App.closeCountryModal()" class="btn btn-secondary shadow-sm">Cancel</button>
+          <button type="button" onclick="App.submitCountry()" class="btn btn-primary shadow-sm">Save Config</button>
        </div>
     </div>
   </div>
 
   <!-- Toast -->
   <div id="toast" class="toast p-4 flex items-center shadow-lg border border-slate-700">
-    <span id="toastMsg" class="font-medium text-sm">操作成功</span>
+    <svg id="toastIcon" class="w-5 h-5 mr-3 text-green-400" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMsg" class="font-medium text-sm">Action successful</span>
   </div>
 
 <script>
@@ -424,12 +431,14 @@ const App = (() => {
   const escapeHTML = str => { if(!str)return''; const d=document.createElement('div'); d.innerText=str; return d.innerHTML; };
 
   const showToast = (msg, type = 'success') => {
-    const t = el('toast'); el('toastMsg').textContent = msg;
+    const t = el('toast'); const ic = el('toastIcon'); el('toastMsg').textContent = msg;
+    if(type === 'error') { ic.className='w-5 h-5 mr-3 text-red-400'; ic.innerHTML='<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>'; }
+    else { ic.className='w-5 h-5 mr-3 text-green-400'; ic.innerHTML='<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>'; }
     t.classList.add('show'); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(()=>t.classList.remove('show'), 3000);
   };
   const apiFetch = async (path, opts={}) => {
     try { const res = await fetch(API_BASE+path, { headers:{'Content-Type':'application/json'}, ...opts});
-      const data = await res.json().catch(()=>({})); if(!res.ok){showToast(data.message||'请求失败','error');throw new Error();} return data;
+      const data = await res.json().catch(()=>({})); if(!res.ok){showToast(data.message||'Request Failed','error');throw new Error();} return data; 
     } catch(e){ console.error(e);throw e; }
   };
 
@@ -437,7 +446,7 @@ const App = (() => {
     state.currentTab = name;
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active')); el(`panel-${name}`).classList.add('active');
     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active')); document.querySelector(`.sidebar-link[data-tab="${name}"]`)?.classList.add('active');
-    const t = { review:{t:'审核中心',s:'管理招聘方提交的待审核岗位。'}, jobs:{t:'岗位管理',s:'查看和管理所有已发布及待审核的岗位。'}, reports:{t:'举报处理',s:'处理用户提交的内容举报。'}, countries:{t:'国家配置',s:'配置系统支持的地区与货币回退规则。'}, config:{t:'应用配置',s:'管理客户端功能开关。'}};
+    const t = { review:{t:'Reviews & Audit',s:'Manage pending submissions from recruiters.'}, jobs:{t:'Job Listings',s:'Current active and suspended node listings.'}, reports:{t:'Incidents',s:'Resolve user submitted abuse reports.'}, countries:{t:'Regions',s:'System wide geographic configurations.'}, config:{t:'Preferences',s:'Toggle client side modules.'}};
     el('pageTitle').textContent = t[name].t; el('pageSubtitle').textContent = t[name].s;
     const loaders = { review: loadReview, reports: loadReports, jobs: loadJobs, countries: loadCountries, config: loadConfig };
     if(loaders[name]) loaders[name]().catch(()=>{});
@@ -448,7 +457,7 @@ const App = (() => {
   /* Reviews */
   const loadReview = async () => {
     const res = await apiFetch('/admin/jobs?status=pending&page_size=100'); state.pendingJobs = res.data?.list||[];
-    updateBadge('badge-review', state.pendingJobs.length); el('reviewStat').textContent = `${state.pendingJobs.length} 条待处理`;
+    updateBadge('badge-review', state.pendingJobs.length); el('reviewStat').textContent = `${state.pendingJobs.length} Pending Actions`;
     const tb = el('reviewTable'); if(!state.pendingJobs.length){ tb.innerHTML=''; el('reviewEmpty').classList.remove('hidden'); return; }
     el('reviewEmpty').classList.add('hidden');
     tb.innerHTML = state.pendingJobs.map(j => `
@@ -458,17 +467,17 @@ const App = (() => {
         <td class="px-6 py-4 text-slate-700">${escapeHTML(j.salary)}</td>
         <td class="px-6 py-4 text-slate-500 text-xs">${j.created_at ? j.created_at.slice(0,16).replace('T',' ') : '-'}</td>
         <td class="px-6 py-4 text-right">
-           <button onclick="App.reviewAction('${j.id}','approve')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-green-600 hover:!border-green-200">通过</button>
-           <button onclick="App.reviewAction('${j.id}','reject')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-amber-600 hover:!border-amber-200">拒绝</button>
-           <button onclick="App.reviewAction('${j.id}','ban')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-red-600 hover:!border-red-200 hover:!bg-red-50">封禁</button>
+           <button onclick="App.reviewAction('${j.id}','approve')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-green-600 hover:!border-green-200">Approve</button>
+           <button onclick="App.reviewAction('${j.id}','reject')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-amber-600 hover:!border-amber-200">Reject</button>
+           <button onclick="App.reviewAction('${j.id}','ban')" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-red-600 hover:!border-red-200 hover:!bg-red-50">Ban</button>
         </td>
       </tr>
     `).join('');
   };
   const reviewAction = async (id, act) => {
-    if(!confirm(`确认执行「${act}」操作？`)) return;
+    if(!confirm(`Confirm action: ${act}?`)) return;
     await apiFetch(`/admin/jobs/${id}/review`, {method:'PATCH',body:JSON.stringify({action:act})});
-    showToast('操作成功'); await loadReview();
+    showToast(`Successfully set to ${act}`); await loadReview();
   };
 
   /* Jobs */
@@ -476,7 +485,7 @@ const App = (() => {
     const res = await apiFetch('/admin/jobs?page_size=100'); state.jobs = res.data?.list||[];
     const cs = [...new Set(state.jobs.map(j=>j.country).filter(Boolean))].sort();
     const selC = el('jobFilterCountry'); const vs = selC.value;
-    selC.innerHTML = '<option value="">全部地区</option>' + cs.map(c=>`<option value="${c}">${c}</option>`).join(''); selC.value=vs;
+    selC.innerHTML = '<option value="">All Regions</option>' + cs.map(c=>`<option value="${c}">${c}</option>`).join(''); selC.value=vs;
     el('jobCountry').innerHTML = cs.length ? cs.map(c=>`<option value="${c}">${c}</option>`).join('') : '<option value="US">US</option>';
     renderJobs();
   };
@@ -486,22 +495,21 @@ const App = (() => {
     const tb = el('jobTable'); if(!l.length){tb.innerHTML='';el('jobEmpty').classList.remove('hidden');return;}
     el('jobEmpty').classList.add('hidden');
     const badgeMap = { active:'badge-green', pending:'badge-yellow', banned:'badge-red', rejected:'badge-gray' };
-    const statusMap = { active:'已通过', pending:'待审核', banned:'已封禁', rejected:'已拒绝' };
     tb.innerHTML = l.map(j => `
       <tr class="hover:bg-slate-50 transition">
         <td class="px-6 py-4"><p class="font-medium text-slate-800">${escapeHTML(j.title)}</p><p class="text-slate-500 text-xs mt-0.5">${escapeHTML(j.company_name)}</p></td>
         <td class="px-6 py-4 text-slate-600"><span class="font-medium text-slate-700 mr-1">${escapeHTML(j.country)}</span> ${escapeHTML(j.city)}</td>
-        <td class="px-6 py-4"><span class="badge ${badgeMap[j.status]||'badge-gray'}">${statusMap[j.status] || j.status}</span></td>
+        <td class="px-6 py-4"><span class="badge ${badgeMap[j.status]||'badge-gray'} capitalize">${j.status}</span></td>
         <td class="px-6 py-4 text-right">
-          <button onclick='App.openJobModal(${JSON.stringify(j).replace(/'/g,"&#39;")})' class="btn btn-secondary !px-2 !py-1 text-xs">编辑</button>
-          <button onclick="App.deleteJob('${j.id}')" class="btn btn-danger !px-2 !py-1 text-xs bg-transparent border-transparent">删除</button>
+          <button onclick='App.openJobModal(${JSON.stringify(j).replace(/'/g,"&#39;")})' class="btn btn-secondary !px-2 !py-1 text-xs">Edit</button>
+          <button onclick="App.deleteJob('${j.id}')" class="btn btn-danger !px-2 !py-1 text-xs bg-transparent border-transparent">Delete</button>
         </td>
       </tr>
     `).join('');
   };
   const openJobModal = (j=null) => {
     el('jobModal').classList.add('open'); el('jobForm').reset();
-    el('jobModalTitle').textContent = j ? '编辑岗位' : '新增岗位';
+    el('jobModalTitle').textContent = j ? 'Edit Listing' : 'Create Listing';
     el('jobId').value = j?.id||'';
     ['Title','Company','Country','City','Salary','Type','Platform','Link','Desc','Tags'].forEach(k => el('job'+k).value = j?.[({Title:'title',Company:'company_name',Country:'country',City:'city',Salary:'salary',Type:'job_type',Platform:'contact_platform',Link:'contact_link',Desc:'description',Tags:'tags'})[k]]??(k==='Tags'?[]:(k==='Type'?'Part-time':k==='Platform'?'whatsapp':'')));
     if(j?.tags) el('jobTags').value = j.tags.join(',');
@@ -513,9 +521,9 @@ const App = (() => {
     const b = { title:el('jobTitle').value, company_name:el('jobCompany').value, country:el('jobCountry').value, city:el('jobCity').value, salary:el('jobSalary').value, job_type:el('jobType').value, contact_platform:el('jobPlatform').value, contact_link:el('jobLink').value, description:el('jobDesc').value, requirements:el('jobReqs').value.split('\n').filter(Boolean), responsibilities:el('jobResp').value.split('\n').filter(Boolean), tags:el('jobTags').value.split(',').map(s=>s.trim()).filter(Boolean)};
     const id = el('jobId').value;
     await apiFetch(id?`/admin/jobs/${id}`:'/admin/jobs', {method:id?'PATCH':'POST',body:JSON.stringify(b)});
-    showToast(id?'已更新':'已创建'); closeJobModal(); loadJobs(); loadReview();
+    showToast(id?'Updated':'Created'); closeJobModal(); loadJobs(); loadReview();
   };
-  const deleteJob = async (id) => { if(!confirm('确定永久删除该岗位？'))return; await apiFetch(`/admin/jobs/${id}`,{method:'DELETE'}); showToast('已删除'); loadJobs(); loadReview(); };
+  const deleteJob = async (id) => { if(!confirm('Permamently delete?'))return; await apiFetch(`/admin/jobs/${id}`,{method:'DELETE'}); showToast('Deleted'); loadJobs(); loadReview(); };
 
   /* Reports */
   const loadReports = async () => { const res = await apiFetch('/admin/reports?page_size=100'); state.reports = res.data?.list||[]; updateBadge('badge-reports', state.reports.filter(r=>r.status==='pending').length); renderReports(); };
@@ -528,20 +536,19 @@ const App = (() => {
     const l = state.reportFilter ? state.reports.filter(r=>r.status===state.reportFilter) : state.reports; const tb = el('reportTable');
     if(!l.length){tb.innerHTML='';el('reportEmpty').classList.remove('hidden');return;} el('reportEmpty').classList.add('hidden');
     const badgeMap = { pending:'badge-yellow', resolved:'badge-green', dismissed:'badge-gray' };
-    const statusMap = { pending:'待处理', resolved:'已处理', dismissed:'已忽略' };
     tb.innerHTML = l.map(r => `
       <tr class="hover:bg-slate-50 transition">
         <td class="px-6 py-4 font-medium text-slate-700">${escapeHTML(r.type)}</td>
         <td class="px-6 py-4"><div class="max-w-[200px] truncate text-slate-500" title="${escapeHTML(r.reason)}">${escapeHTML(r.reason||'-')}</div></td>
         <td class="px-6 py-4 text-xs font-mono text-blue-600">${escapeHTML(r.job_id||'-')}</td>
-        <td class="px-6 py-4"><span class="badge ${badgeMap[r.status]||'badge-gray'}">${statusMap[r.status] || r.status}</span></td>
+        <td class="px-6 py-4"><span class="badge ${badgeMap[r.status]||'badge-gray'} capitalize">${r.status}</span></td>
         <td class="px-6 py-4 text-right">
-          ${r.status==='pending' ? `<button onclick="App.handleReport('${r.id}','resolve',true)" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-red-600 hover:!border-red-200 mr-1">封禁并处理</button><button onclick="App.handleReport('${r.id}','resolve',false)" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-green-600 hover:!border-green-200 mr-1">标记已处理</button><button onclick="App.handleReport('${r.id}','dismiss',false)" class="btn btn-secondary border-transparent bg-transparent !px-2 !py-1 text-xs">忽略</button>` : '<span class="text-slate-400 text-xs italic">已处理</span>'}
+          ${r.status==='pending' ? `<button onclick="App.handleReport('${r.id}','resolve',true)" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-red-600 hover:!border-red-200 mr-1">Ban Target</button><button onclick="App.handleReport('${r.id}','resolve',false)" class="btn btn-secondary !px-2 !py-1 text-xs hover:!text-green-600 hover:!border-green-200 mr-1">Resolve</button><button onclick="App.handleReport('${r.id}','dismiss',false)" class="btn btn-secondary border-transparent bg-transparent !px-2 !py-1 text-xs">Dismiss</button>` : '<span class="text-slate-400 text-xs italic">Actioned</span>'}
         </td>
       </tr>
     `).join('');
   };
-  const handleReport = async (id, act, ban) => { if(!confirm('确认处理该举报？'))return; await apiFetch(`/admin/reports/${id}/handle`,{method:'POST',body:JSON.stringify({action:act, ban_job:ban})}); showToast('处理成功'); await loadReports(); if(ban){loadReview();loadJobs();} };
+  const handleReport = async (id, act, ban) => { if(!confirm('Commit resolution?'))return; await apiFetch(`/admin/reports/${id}/handle`,{method:'POST',body:JSON.stringify({action:act, ban_job:ban})}); showToast('Resolved'); await loadReports(); if(ban){loadReview();loadJobs();} };
 
   /* Countries */
   const loadCountries = async () => { const res = await apiFetch('/admin/countries'); state.countries = res.data||[]; renderCountries(); };
@@ -552,18 +559,18 @@ const App = (() => {
         <td class="px-6 py-4 text-slate-800">${escapeHTML(c.name)}</td>
         <td class="px-6 py-4 text-slate-600">${escapeHTML(c.currency||'-')}</td>
         <td class="px-6 py-4 text-slate-500 text-xs">${(c.fallback_order||[]).join(', ')||'-'}</td>
-        <td class="px-6 py-4 text-right"><button onclick='App.openCountryModal(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="btn btn-secondary !px-2 !py-1 text-xs mr-1">编辑</button><button onclick="App.deleteCountry('${c.code}')" class="btn btn-danger !px-2 !py-1 text-xs bg-transparent border-transparent">删除</button></td>
+        <td class="px-6 py-4 text-right"><button onclick='App.openCountryModal(${JSON.stringify(c).replace(/'/g,"&#39;")})' class="btn btn-secondary !px-2 !py-1 text-xs mr-1">Edit</button><button onclick="App.deleteCountry('${c.code}')" class="btn btn-danger !px-2 !py-1 text-xs bg-transparent border-transparent">Drop</button></td>
       </tr>
     `).join('');
   };
-  const openCountryModal = (c=null) => { el('countryModal').classList.add('open'); el('countryForm').reset(); el('countryModalTitle').textContent=c?'编辑地区':'添加地区'; el('countryCode').value=c?.code||''; el('countryName').value=c?.name||''; el('countryCurrency').value=c?.currency||''; el('countrySupport').value=c?.support_link||''; el('countryFallback').value=(c?.fallback_order||[]).join(','); };
+  const openCountryModal = (c=null) => { el('countryModal').classList.add('open'); el('countryForm').reset(); el('countryModalTitle').textContent=c?'Edit Region':'Add Region'; el('countryCodeOrig').value=c?.code||''; el('countryCode').value=c?.code||''; el('countryName').value=c?.name||''; el('countryCurrency').value=c?.currency||''; el('countrySupport').value=c?.support_link||''; el('countryFallback').value=(c?.fallback_order||[]).join(','); };
   const closeCountryModal = () => el('countryModal').classList.remove('open');
-  const submitCountry = async () => { if(!el('countryForm').reportValidity())return; const b={name:el('countryName').value, currency:el('countryCurrency').value, support_link:el('countrySupport').value, fallback_order:el('countryFallback').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean)}; await apiFetch(`/admin/countries/${el('countryCode').value.toUpperCase()}`,{method:'POST',body:JSON.stringify(b)}); showToast('保存成功'); closeCountryModal(); loadCountries(); };
-  const deleteCountry = async (code) => { if(!confirm('确定删除该地区？'))return; await apiFetch(`/admin/countries/${code}`,{method:'DELETE'}); showToast('已删除'); loadCountries(); };
+  const submitCountry = async () => { if(!el('countryForm').reportValidity())return; const b={name:el('countryName').value, currency:el('countryCurrency').value, support_link:el('countrySupport').value, fallback_order:el('countryFallback').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean)}; await apiFetch(`/admin/countries/${el('countryCode').value.toUpperCase()}`,{method:'POST',body:JSON.stringify(b)}); showToast('Saved'); closeCountryModal(); loadCountries(); };
+  const deleteCountry = async (code) => { if(!confirm('Remove region?'))return; await apiFetch(`/admin/countries/${code}`,{method:'DELETE'}); showToast('Removed'); loadCountries(); };
 
   /* Config */
   const loadConfig = async () => { const res = await apiFetch('/admin/configs'); const cfg = res.data||{}; ['Search','Filter','Contact','Report','Share'].forEach(k => el('cfg'+k).checked = cfg[k.toLowerCase()+'_enabled']!==false && (cfg[k.toLowerCase()+'_enabled']||(k==='Contact'||k==='Report'))); el('cfgVersion').value = cfg.version||'1.0.0'; };
-  el('configForm').addEventListener('submit', async e => { e.preventDefault(); const b={search_enabled:el('cfgSearch').checked, filter_enabled:el('cfgFilter').checked, contact_enabled:el('cfgContact').checked, report_enabled:el('cfgReport').checked, share_enabled:el('cfgShare').checked, version:el('cfgVersion').value}; await apiFetch('/admin/configs',{method:'POST',body:JSON.stringify(b)}); showToast('配置已保存'); });
+  el('configForm').addEventListener('submit', async e => { e.preventDefault(); const b={search_enabled:el('cfgSearch').checked, filter_enabled:el('cfgFilter').checked, contact_enabled:el('cfgContact').checked, report_enabled:el('cfgReport').checked, share_enabled:el('cfgShare').checked, version:el('cfgVersion').value}; await apiFetch('/admin/configs',{method:'POST',body:JSON.stringify(b)}); showToast('Preferences Applied'); });
 
   el('jobSearch').addEventListener('input', renderJobs); el('jobFilterCountry').addEventListener('change', renderJobs); el('jobFilterStatus').addEventListener('change', renderJobs);
   return { init:()=>{switchTab('review');}, switchTab, setReportFilter, reviewAction, handleReport, openJobModal, closeJobModal, submitJob, deleteJob, openCountryModal, closeCountryModal, submitCountry, deleteCountry };
