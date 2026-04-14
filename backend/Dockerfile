@@ -12,7 +12,8 @@ ENV PORT=8080
 
 # Force cache bust for public files
 ARG BUILD_TIMESTAMP=unknown
-RUN echo "Build: $BUILD_TIMESTAMP"
+ARG GIT_SHA=unknown
+RUN echo "Build: $BUILD_TIMESTAMP at $GIT_SHA"
 
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -23,6 +24,9 @@ COPY package*.json ./
 
 # Copy public directory LAST to ensure fresh static files
 COPY public/ ./public/
+
+# Verify public files
+RUN ls -la public/admin/ && cat public/admin/index.html | head -5
 
 EXPOSE 8080
 CMD ["node", "server.js"]
