@@ -5,6 +5,7 @@ const configController = require('../controllers/config');
 const adminJobsController = require('../controllers/adminJobs');
 const countriesController = require('../controllers/countries');
 const adminConfigController = require('../controllers/adminConfig');
+const eventsController = require('../controllers/events');
 
 const router = express.Router();
 
@@ -31,5 +32,9 @@ router.post('/admin/countries/:code', countriesController.createOrUpdateCountry)
 router.delete('/admin/countries/:code', countriesController.deleteCountry);
 router.get('/admin/configs', adminConfigController.getAdminConfig);
 router.post('/admin/configs', adminConfigController.updateAdminConfig);
+
+// Events APIs
+router.post('/events', eventsController.createEvent);
+router.get('/admin/events/stats', eventsController.getEventStats);
 
 module.exports = router;
