@@ -11,5 +11,7 @@ ENV NODE_ENV=production
 ENV PORT=8080
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Ensure public directory exists with correct permissions
+RUN ls -la public/ || echo "Public directory check"
 EXPOSE 8080
 CMD ["node", "server.js"]
