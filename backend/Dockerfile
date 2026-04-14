@@ -10,9 +10,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8080
 COPY --from=deps /app/node_modules ./node_modules
-# Copy public directory first (static files)
+
+# Copy source code (excluding public, which is copied separately)
+COPY src/ ./src/
+COPY server.js ./
+COPY package*.json ./
+
+# Copy public directory LAST to ensure fresh static files
 COPY public/ ./public/
-# Then copy the rest
-COPY . .
+
 EXPOSE 8080
 CMD ["node", "server.js"]
