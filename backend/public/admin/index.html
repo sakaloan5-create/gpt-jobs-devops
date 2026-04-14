@@ -217,9 +217,9 @@ input:focus { border-color: #3b82f6; outline: none; }
         </div>
         <div class="relative">
           <label class="block text-sm font-medium text-slate-700 mb-1">国家 *</label>
-          <input id="jobCountrySearch" type="text" required class="w-full" placeholder="输入国家名称搜索..." autocomplete="off" oninput="filterCountries(this.value)">
+          <input id="jobCountrySearch" type="text" required class="w-full" placeholder="点击选择或输入搜索（代码/中文）..." autocomplete="off" oninput="filterCountries(this.value)" onclick="showAllCountries()">
           <input type="hidden" id="jobCountryCode">
-          <div id="countryDropdown" class="hidden absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto w-full mt-1"></div>
+          <div id="countryDropdown" class="hidden absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto w-full mt-1"></div>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">城市</label>
@@ -390,33 +390,45 @@ function renderJobs() {
   }).join('');
 }
 
-// Country Dropdown Filter
+// Country Dropdown - Show all countries by default
+function showAllCountries() {
+  const dropdown = document.getElementById('countryDropdown');
+  dropdown.innerHTML = COUNTRIES.map(c => `
+    <div onclick="selectCountry('${c.code}', '${c.name}')" class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex justify-between items-center">
+      <span class="font-medium">${c.name}</span>
+      <span class="text-slate-400 text-sm">${c.code}</span>
+    </div>
+  `).join('');
+  dropdown.classList.remove('hidden');
+}
+
+// Filter countries by query (name, pinyin, or code)
 function filterCountries(query) {
   const dropdown = document.getElementById('countryDropdown');
-  const input = document.getElementById('jobCountrySearch');
-  const hidden = document.getElementById('jobCountryCode');
+  const q = query.toLowerCase().trim();
   
-  if (!query) {
-    dropdown.classList.add('hidden');
+  // If empty, show all
+  if (!q) {
+    showAllCountries();
     return;
   }
   
-  const q = query.toLowerCase();
   const matches = COUNTRIES.filter(c => 
-    c.name.includes(query) || 
+    c.name.toLowerCase().includes(q) || 
     c.pinyin.includes(q) || 
     c.code.toLowerCase().includes(q) ||
     c.en.toLowerCase().includes(q)
-  ).slice(0, 10);
+  );
   
   if (matches.length === 0) {
-    dropdown.classList.add('hidden');
+    dropdown.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">未找到匹配的国家</div>`;
+    dropdown.classList.remove('hidden');
     return;
   }
   
   dropdown.innerHTML = matches.map(c => `
-    <div onclick="selectCountry('${c.code}', '${c.name}')" class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex justify-between">
-      <span>${c.name}</span>
+    <div onclick="selectCountry('${c.code}', '${c.name}')" class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex justify-between items-center">
+      <span class="font-medium">${c.name}</span>
       <span class="text-slate-400 text-sm">${c.code}</span>
     </div>
   `).join('');
@@ -443,6 +455,7 @@ function openJobModal() {
   document.getElementById('jobId').value = '';
   document.getElementById('jobModalTitle').textContent = '新增岗位';
   document.getElementById('jobCountryCode').value = '';
+  document.getElementById('countryDropdown').classList.add('hidden');
 }
 
 function closeJobModal() {
