@@ -143,22 +143,6 @@ input:focus { border-color: #3b82f6; outline: none; }
             <button onclick="loadAnalytics()" class="btn btn-primary">查询</button>
           </div>
           
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div class="text-sm text-slate-500 mb-2">浏览列表次数</div>
-              <div class="text-3xl font-bold text-slate-900" id="statJobListView">0</div>
-            </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div class="text-sm text-slate-500 mb-2">打开详情次数</div>
-              <div class="text-3xl font-bold text-slate-900" id="statJobDetailOpen">0</div>
-            </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div class="text-sm text-slate-500 mb-2">点击联系次数</div>
-              <div class="text-3xl font-bold text-slate-900" id="statJobContactClick">0</div>
-            </div>
-          </div>
-          
           <!-- Per-Country Job Stats Table -->
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
@@ -798,13 +782,6 @@ async function loadAnalytics() {
   if (!start || !end) return;
   
   try {
-    // Load summary stats
-    const summaryData = await api('/admin/events/stats?start_date=' + start + '&end_date=' + end);
-    const stats = summaryData.data || {};
-    document.getElementById('statJobListView').textContent = stats.job_list_view || 0;
-    document.getElementById('statJobDetailOpen').textContent = stats.job_detail_open || 0;
-    document.getElementById('statJobContactClick').textContent = stats.job_contact_click || 0;
-    
     // Load per-country per-job stats
     const jobStatsUrl = '/admin/events/job-stats?start_date=' + start + '&end_date=' + end + 
                        (countryFilter ? '&country=' + countryFilter : '');
