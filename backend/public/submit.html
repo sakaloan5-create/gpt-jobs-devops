@@ -3,554 +3,611 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>提交岗位 - GPTJobs</title>
-<script src="./tw-cdn.js"></script>
+<title>发布岗位 - GPTJobs</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      fontFamily: { sans: ['Inter','sans-serif'] },
-      colors: {
-        slate: { 50:'#f8fafc', 100:'#f1f5f9', 200:'#e2e8f0', 300:'#cbd5e1', 400:'#94a3b8', 500:'#64748b', 600:'#475569', 700:'#334155', 800:'#1e293b', 900:'#0f172a' },
-        primary: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
-      }
-    }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  color: white;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.progress-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: all 0.3s;
+}
+
+.progress-dot.active {
+  background: white;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
-</script>
-<style>
-  body { background-color: #f8fafc; color: #334155; min-height: 100vh; }
-  .form-input {
-    width: 100%; background: #ffffff; border: 1px solid #cbd5e1; color: #334155;
-    border-radius: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.875rem;
-    transition: all 0.15s ease; outline: none; appearance: none;
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 6px;
+}
+
+.required::after {
+  content: ' *';
+  color: #e53e3e;
+}
+
+input[type="text"],
+input[type="url"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.country-select-wrapper {
+  position: relative;
+}
+
+.country-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  display: none;
+}
+
+.country-dropdown.show {
+  display: block;
+}
+
+.country-group-header {
+  padding: 8px 12px;
+  background: #f7fafc;
+  font-size: 11px;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.country-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.country-option:hover {
+  background: #f7fafc;
+}
+
+.country-option .code {
+  font-size: 12px;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+.divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 28px 0;
+}
+
+.contact-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .contact-options {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .form-input:focus {
-    border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+}
+
+.contact-option {
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.contact-option:hover {
+  border-color: #cbd5e0;
+}
+
+.contact-option.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 8px;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.success-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.success-modal.show {
+  display: flex;
+}
+
+.success-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  .form-select-caret {
-    position: absolute; right: 0.875rem; top: 50%; transform: translateY(-50%);
-    pointer-events: none; color: #94a3b8;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .form-label {
-    display: block; font-size: 0.8125rem; font-weight: 600; color: #475569;
-    margin-bottom: 0.375rem;
-  }
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    font-size: 0.875rem; font-weight: 500; padding: 0.75rem 1.5rem; border-radius: 0.5rem;
-    transition: all 0.15s ease; cursor: pointer;
-  }
-  .btn-primary { background-color: #2563eb; color: #ffffff; border: 1px solid #2563eb; }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:hover { background-color: #1d4ed8; }
-  #successMsg {
-    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
-  }
-  #successMsg.show {
-    opacity: 1; pointer-events: auto;
-  }
-  #submitForm { transition: opacity 0.4s ease; }
-  .country-dropdown {
-    position: absolute; z-index: 50; background: white; border: 1px solid #cbd5e1;
-    border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    max-height: 20rem; overflow-y: auto; width: 100%; margin-top: 0.25rem;
-  }
-  .country-group-header {
-    background: #f1f5f9; padding: 0.5rem 0.75rem; font-weight: 600; 
-    font-size: 0.75rem; color: #475569;
-  }
-  .country-option {
-    padding: 0.5rem 0.75rem; cursor: pointer; display: flex; justify-content: space-between;
-  }
-  .country-option:hover { background: #f1f5f9; }
-  .hidden { display: none !important; }
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: white;
+  font-size: 32px;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 8px;
+}
+
+.success-text {
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 24px;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: #edf2f7;
+  color: #4a5568;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.hidden { display: none !important; }
 </style>
 </head>
-<body class="flex flex-col py-10 px-4 sm:px-6 lg:px-8">
+<body>
 
-  <div class="max-w-4xl w-full mx-auto relative">
-
-    <!-- Success Message Overlay -->
-    <div id="successMsg" class="absolute inset-0 z-20 flex-col items-center justify-center bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 shadow-xl p-10 text-center flex hidden">
-      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6 text-2xl font-bold">✓</div>
-      <h3 class="text-2xl font-bold text-slate-800 mb-2">提交成功</h3>
-      <p class="text-slate-500 max-w-md mx-auto mb-8">您的岗位已提交，正在等待管理员审核。审核通过后将立即上线。</p>
-      <button onclick="location.reload()" class="btn btn-primary shadow-sm px-8">再提交一个</button>
-    </div>
-
-    <!-- Header -->
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">发布新岗位</h2>
-      <p class="mt-2 text-slate-500">在 GPTJobs 网络中触达最优秀的候选人。</p>
-    </div>
-
-    <!-- Main Card -->
-    <div class="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden relative z-10 transition-opacity" id="formContainer">
-       <div class="px-8 py-6 border-b border-slate-100 bg-slate-50">
-          <h3 class="font-semibold text-slate-800">岗位信息</h3>
-          <p class="text-sm text-slate-500">请提供准确的职位信息。</p>
-       </div>
-
-       <form id="submitForm" class="p-8 space-y-8">
-
-         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="form-label">岗位名称 <span class="text-red-500">*</span></label>
-              <input id="title" required class="form-input" placeholder="例如：高级软件工程师">
-            </div>
-            <div>
-              <label class="form-label">公司名称 <span class="text-red-500">*</span></label>
-              <input id="company_name" required class="form-input" placeholder="例如：某某科技">
-            </div>
-         </div>
-
-         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="relative md:col-span-1">
-              <label class="form-label">国家 <span class="text-red-500">*</span></label>
-              <input id="countrySearch" type="text" required class="form-input" 
-                     placeholder="点击选择或搜索..." autocomplete="off"
-                     onclick="showAllCountries()" oninput="filterCountries(this.value)">
-              <input type="hidden" id="countryCode">
-              <div id="countryDropdown" class="country-dropdown hidden"></div>
-            </div>
-            <div>
-              <label class="form-label">城市</label>
-              <input id="city" class="form-input" placeholder="可选">
-            </div>
-            <div>
-              <label class="form-label">薪资 / 待遇 <span class="text-red-500">*</span></label>
-              <input id="salary" required class="form-input" placeholder="如：35k-50k 或 $5000/month">
-            </div>
-         </div>
-
-         <div class="pt-6 border-t border-slate-100">
-            <div class="mb-4">
-              <h3 class="font-semibold text-slate-800">要求与描述</h3>
-            </div>
-            <div class="space-y-6">
-              <div>
-                <label class="form-label">岗位描述 <span class="text-red-500">*</span></label>
-                <textarea id="description" rows="4" required class="form-input resize-y" placeholder="请描述该职位..."></textarea>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="form-label">岗位要求（每行一条）</label>
-                  <textarea id="requirements" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- 3年以上经验&#10;- 精通 React"></textarea>
-                </div>
-                <div>
-                   <label class="form-label">岗位职责（每行一条）</label>
-                   <textarea id="responsibilities" rows="4" class="form-input resize-y placeholder-slate-300" placeholder="- 构建可扩展的 UI 组件&#10;- 指导初级开发者"></textarea>
-                </div>
-              </div>
-            </div>
-         </div>
-
-         <div class="pt-6 border-t border-slate-100">
-            <div class="mb-4">
-              <h3 class="font-semibold text-slate-800">申请设置</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-               <div class="md:col-span-4 relative">
-                 <label class="form-label">工作类型</label>
-                 <select id="job_type" class="form-input pr-10">
-                   <option value="Full-time">全职</option><option value="Part-time">兼职</option><option value="Contract">合同</option>
-                 </select>
-                 <div class="form-select-caret">▼</div>
-               </div>
-               <div class="md:col-span-4 relative">
-                  <label class="form-label">联系平台</label>
-                  <select id="contact_platform" class="form-input pr-10">
-                    <option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">邮件</option><option value="external_url">外部链接</option>
-                  </select>
-                  <div class="form-select-caret">▼</div>
-               </div>
-               <div class="md:col-span-4">
-                  <label class="form-label">联系链接 <span class="text-red-500">*</span></label>
-                  <input id="contact_link" required class="form-input" placeholder="例如：https://wa.me/...">
-               </div>
-               <div class="md:col-span-12">
-                  <label class="form-label">标签（逗号分隔）</label>
-                  <input id="tags" class="form-input" placeholder="例如：远程, 工程师, 高级">
-               </div>
-            </div>
-         </div>
-
-         <div class="pt-4 flex justify-end">
-            <button type="submit" class="btn btn-primary w-full sm:w-auto px-8 shadow-sm">
-               <span id="btnText">提交岗位</span>
-               <span id="btnLoader" class="hidden">⏳</span>
-            </button>
-         </div>
-
-       </form>
-    </div>
+<div class="container">
+  <div class="header">
+    <h1>🚀 发布新岗位</h1>
+    <p>填写信息，让全球人才看到您的招聘需求</p>
   </div>
 
+  <div class="progress-bar">
+    <div class="progress-dot active"></div>
+    <div class="progress-dot"></div>
+    <div class="progress-dot"></div>
+  </div>
+
+  <div class="card">
+    <form id="jobForm">
+      <!-- 基本信息 -->
+      <div class="section-title">基本信息</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">岗位名称</label>
+          <input type="text" id="title" placeholder="例如：高级前端工程师" required>
+        </div>
+        <div class="form-group">
+          <label class="required">公司名称</label>
+          <input type="text" id="company" placeholder="例如：字节跳动" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">工作地点 - 国家</label>
+          <div class="country-select-wrapper">
+            <input type="text" id="countryInput" placeholder="点击选择国家..." readonly onclick="toggleCountryDropdown()">
+            <input type="hidden" id="countryCode">
+            <div class="country-dropdown" id="countryDropdown"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>城市（可选）</label>
+          <input type="text" id="city" placeholder="例如：北京">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">薪资范围</label>
+        <input type="text" id="salary" placeholder="例如：35k-50k 或 $5000/month" required>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 岗位详情 -->
+      <div class="section-title">岗位详情</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>工作类型</label>
+          <select id="jobType">
+            <option value="full_time">全职</option>
+            <option value="part_time">兼职</option>
+            <option value="contract">合同</option>
+            <option value="intern">实习</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>经验要求</label>
+          <select id="experience">
+            <option value="any">不限</option>
+            <option value="entry">应届生</option>
+            <option value="1-3">1-3年</option>
+            <option value="3-5">3-5年</option>
+            <option value="5-10">5-10年</option>
+            <option value="10+">10年以上</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">岗位描述</label>
+        <textarea id="description" placeholder="请详细描述岗位职责、任职要求、公司介绍等信息..." required></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 联系方式 -->
+      <div class="section-title">联系方式</div>
+
+      <div class="contact-options">
+        <div class="contact-option selected" data-value="whatsapp" onclick="selectContact(this)">
+          📱 WhatsApp
+        </div>
+        <div class="contact-option" data-value="telegram" onclick="selectContact(this)">
+          ✈️ Telegram
+        </div>
+        <div class="contact-option" data-value="email" onclick="selectContact(this)">
+          📧 Email
+        </div>
+        <div class="contact-option" data-value="link" onclick="selectContact(this)">
+          🔗 链接
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">联系链接 / 地址</label>
+        <input type="url" id="contactLink" placeholder="例如：https://wa.me/86138xxxxxxxx" required>
+      </div>
+
+      <div class="form-group">
+        <label>标签（用逗号分隔）</label>
+        <input type="text" id="tags" placeholder="例如：远程, 区块链, 英语流利">
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        发布岗位
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 成功弹窗 -->
+<div class="success-modal" id="successModal">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <div class="success-title">发布成功！</div>
+    <div class="success-text">您的岗位已提交审核，通过后将立即上线展示</div>
+    <button class="btn-secondary" onclick="resetForm()">再发布一个</button>
+  </div>
+</div>
+
 <script>
-// 全球所有国家数据（按地区分组）
+// 国家数据
 const COUNTRIES = [
-  // 亚洲
-  { code: "CN", name: "中国", pinyin: "zhongguo", en: "China", region: "亚洲" },
-  { code: "JP", name: "日本", pinyin: "riben", en: "Japan", region: "亚洲" },
-  { code: "KR", name: "韩国", pinyin: "hanguo", en: "South Korea", region: "亚洲" },
-  { code: "SG", name: "新加坡", pinyin: "xinjiapo", en: "Singapore", region: "亚洲" },
-  { code: "PH", name: "菲律宾", pinyin: "feilvbin", en: "Philippines", region: "亚洲" },
-  { code: "ID", name: "印尼", pinyin: "yinni", en: "Indonesia", region: "亚洲" },
-  { code: "TH", name: "泰国", pinyin: "taiguo", en: "Thailand", region: "亚洲" },
-  { code: "VN", name: "越南", pinyin: "yuenan", en: "Vietnam", region: "亚洲" },
-  { code: "MY", name: "马来西亚", pinyin: "malaixiya", en: "Malaysia", region: "亚洲" },
-  { code: "IN", name: "印度", pinyin: "yindu", en: "India", region: "亚洲" },
-  { code: "AE", name: "阿联酋", pinyin: "alianqiu", en: "UAE", region: "亚洲" },
-  { code: "SA", name: "沙特", pinyin: "shate", en: "Saudi Arabia", region: "亚洲" },
-  { code: "PK", name: "巴基斯坦", pinyin: "bajisitan", en: "Pakistan", region: "亚洲" },
-  { code: "BD", name: "孟加拉", pinyin: "mengjiala", en: "Bangladesh", region: "亚洲" },
-  { code: "LK", name: "斯里兰卡", pinyin: "sililanka", en: "Sri Lanka", region: "亚洲" },
-  { code: "NP", name: "尼泊尔", pinyin: "niboer", en: "Nepal", region: "亚洲" },
-  { code: "MM", name: "缅甸", pinyin: "miandian", en: "Myanmar", region: "亚洲" },
-  { code: "KH", name: "柬埔寨", pinyin: "jianpuzhai", en: "Cambodia", region: "亚洲" },
-  { code: "LA", name: "老挝", pinyin: "laowo", en: "Laos", region: "亚洲" },
-  { code: "BN", name: "文莱", pinyin: "wenlai", en: "Brunei", region: "亚洲" },
-  { code: "TW", name: "台湾", pinyin: "taiwan", en: "Taiwan", region: "亚洲" },
-  { code: "HK", name: "香港", pinyin: "xianggang", en: "Hong Kong", region: "亚洲" },
-  { code: "MO", name: "澳门", pinyin: "aomen", en: "Macao", region: "亚洲" },
-  { code: "MN", name: "蒙古", pinyin: "menggu", en: "Mongolia", region: "亚洲" },
-  { code: "KP", name: "朝鲜", pinyin: "chaoxian", en: "North Korea", region: "亚洲" },
-  { code: "KZ", name: "哈萨克斯坦", pinyin: "hasakesitan", en: "Kazakhstan", region: "亚洲" },
-  { code: "UZ", name: "乌兹别克斯坦", pinyin: "wuzibiekesitan", en: "Uzbekistan", region: "亚洲" },
-  { code: "KG", name: "吉尔吉斯斯坦", pinyin: "jierjisisitan", en: "Kyrgyzstan", region: "亚洲" },
-  { code: "TJ", name: "塔吉克斯坦", pinyin: "tajikesitan", en: "Tajikistan", region: "亚洲" },
-  { code: "TM", name: "土库曼斯坦", pinyin: "tukumansitan", en: "Turkmenistan", region: "亚洲" },
-  { code: "AF", name: "阿富汗", pinyin: "afuhan", en: "Afghanistan", region: "亚洲" },
-  { code: "IR", name: "伊朗", pinyin: "yilang", en: "Iran", region: "亚洲" },
-  { code: "IQ", name: "伊拉克", pinyin: "yilake", en: "Iraq", region: "亚洲" },
-  { code: "SY", name: "叙利亚", pinyin: "xuliya", en: "Syria", region: "亚洲" },
-  { code: "JO", name: "约旦", pinyin: "yuedan", en: "Jordan", region: "亚洲" },
-  { code: "LB", name: "黎巴嫩", pinyin: "libanen", en: "Lebanon", region: "亚洲" },
-  { code: "IL", name: "以色列", pinyin: "yiselie", en: "Israel", region: "亚洲" },
-  { code: "PS", name: "巴勒斯坦", pinyin: "baleisitan", en: "Palestine", region: "亚洲" },
-  { code: "YE", name: "也门", pinyin: "yemen", en: "Yemen", region: "亚洲" },
-  { code: "OM", name: "阿曼", pinyin: "aman", en: "Oman", region: "亚洲" },
-  { code: "QA", name: "卡塔尔", pinyin: "kataer", en: "Qatar", region: "亚洲" },
-  { code: "BH", name: "巴林", pinyin: "balin", en: "Bahrain", region: "亚洲" },
-  { code: "KW", name: "科威特", pinyin: "keweite", en: "Kuwait", region: "亚洲" },
-  { code: "GE", name: "格鲁吉亚", pinyin: "gelujiya", en: "Georgia", region: "亚洲" },
-  { code: "AM", name: "亚美尼亚", pinyin: "yameiniya", en: "Armenia", region: "亚洲" },
-  { code: "AZ", name: "阿塞拜疆", pinyin: "asaibaijiang", en: "Azerbaijan", region: "亚洲" },
-  { code: "TR", name: "土耳其", pinyin: "tuerqi", en: "Turkey", region: "亚洲" },
-  { code: "CY", name: "塞浦路斯", pinyin: "saipulusi", en: "Cyprus", region: "亚洲" },
-  { code: "MV", name: "马尔代夫", pinyin: "maerdaifu", en: "Maldives", region: "亚洲" },
-  { code: "BT", name: "不丹", pinyin: "budan", en: "Bhutan", region: "亚洲" },
-  { code: "TL", name: "东帝汶", pinyin: "dongdiwen", en: "Timor-Leste", region: "亚洲" },
-  
-  // 欧洲
-  { code: "GB", name: "英国", pinyin: "yingguo", en: "United Kingdom", region: "欧洲" },
-  { code: "DE", name: "德国", pinyin: "deguo", en: "Germany", region: "欧洲" },
-  { code: "FR", name: "法国", pinyin: "faguo", en: "France", region: "欧洲" },
-  { code: "IT", name: "意大利", pinyin: "yidali", en: "Italy", region: "欧洲" },
-  { code: "ES", name: "西班牙", pinyin: "xibanya", en: "Spain", region: "欧洲" },
-  { code: "NL", name: "荷兰", pinyin: "helan", en: "Netherlands", region: "欧洲" },
-  { code: "BE", name: "比利时", pinyin: "bilishi", en: "Belgium", region: "欧洲" },
-  { code: "CH", name: "瑞士", pinyin: "ruishi", en: "Switzerland", region: "欧洲" },
-  { code: "AT", name: "奥地利", pinyin: "aodili", en: "Austria", region: "欧洲" },
-  { code: "SE", name: "瑞典", pinyin: "ruidian", en: "Sweden", region: "欧洲" },
-  { code: "NO", name: "挪威", pinyin: "nuowei", en: "Norway", region: "欧洲" },
-  { code: "DK", name: "丹麦", pinyin: "danmai", en: "Denmark", region: "欧洲" },
-  { code: "FI", name: "芬兰", pinyin: "fenlan", en: "Finland", region: "欧洲" },
-  { code: "PL", name: "波兰", pinyin: "bolan", en: "Poland", region: "欧洲" },
-  { code: "RU", name: "俄罗斯", pinyin: "eluosi", en: "Russia", region: "欧洲" },
-  { code: "UA", name: "乌克兰", pinyin: "wukelan", en: "Ukraine", region: "欧洲" },
-  { code: "CZ", name: "捷克", pinyin: "jieke", en: "Czech Republic", region: "欧洲" },
-  { code: "HU", name: "匈牙利", pinyin: "xiongyali", en: "Hungary", region: "欧洲" },
-  { code: "RO", name: "罗马尼亚", pinyin: "luomaniya", en: "Romania", region: "欧洲" },
-  { code: "BG", name: "保加利亚", pinyin: "baojialiya", en: "Bulgaria", region: "欧洲" },
-  { code: "GR", name: "希腊", pinyin: "xila", en: "Greece", region: "欧洲" },
-  { code: "PT", name: "葡萄牙", pinyin: "putaoya", en: "Portugal", region: "欧洲" },
-  { code: "IE", name: "爱尔兰", pinyin: "aierlan", en: "Ireland", region: "欧洲" },
-  { code: "IS", name: "冰岛", pinyin: "bingdao", en: "Iceland", region: "欧洲" },
-  { code: "LU", name: "卢森堡", pinyin: "lusenbao", en: "Luxembourg", region: "欧洲" },
-  { code: "MT", name: "马耳他", pinyin: "maerta", en: "Malta", region: "欧洲" },
-  { code: "SI", name: "斯洛文尼亚", pinyin: "siluowenniya", en: "Slovenia", region: "欧洲" },
-  { code: "SK", name: "斯洛伐克", pinyin: "siluofake", en: "Slovakia", region: "欧洲" },
-  { code: "HR", name: "克罗地亚", pinyin: "keluodiya", en: "Croatia", region: "欧洲" },
-  { code: "RS", name: "塞尔维亚", pinyin: "saierweiya", en: "Serbia", region: "欧洲" },
-  { code: "BA", name: "波黑", pinyin: "bohei", en: "Bosnia and Herzegovina", region: "欧洲" },
-  { code: "ME", name: "黑山", pinyin: "heishan", en: "Montenegro", region: "欧洲" },
-  { code: "AL", name: "阿尔巴尼亚", pinyin: "aerbaniya", en: "Albania", region: "欧洲" },
-  { code: "MK", name: "北马其顿", pinyin: "beimaqidun", en: "North Macedonia", region: "欧洲" },
-  { code: "BY", name: "白俄罗斯", pinyin: "baieluosi", en: "Belarus", region: "欧洲" },
-  { code: "MD", name: "摩尔多瓦", pinyin: "moerduowa", en: "Moldova", region: "欧洲" },
-  { code: "LT", name: "立陶宛", pinyin: "litaowan", en: "Lithuania", region: "欧洲" },
-  { code: "LV", name: "拉脱维亚", pinyin: "latuoweiya", en: "Latvia", region: "欧洲" },
-  { code: "EE", name: "爱沙尼亚", pinyin: "aishaniya", en: "Estonia", region: "欧洲" },
-  { code: "AD", name: "安道尔", pinyin: "andaoer", en: "Andorra", region: "欧洲" },
-  { code: "MC", name: "摩纳哥", pinyin: "monage", en: "Monaco", region: "欧洲" },
-  { code: "LI", name: "列支敦士登", pinyin: "liezhidunshideng", en: "Liechtenstein", region: "欧洲" },
-  { code: "SM", name: "圣马力诺", pinyin: "shengmalinuo", en: "San Marino", region: "欧洲" },
-  { code: "VA", name: "梵蒂冈", pinyin: "fandigang", en: "Vatican City", region: "欧洲" },
-  
-  // 北美洲
-  { code: "US", name: "美国", pinyin: "meiguo", en: "United States", region: "北美洲" },
-  { code: "CA", name: "加拿大", pinyin: "jianada", en: "Canada", region: "北美洲" },
-  { code: "MX", name: "墨西哥", pinyin: "moxige", en: "Mexico", region: "北美洲" },
-  { code: "CU", name: "古巴", pinyin: "guba", en: "Cuba", region: "北美洲" },
-  { code: "JM", name: "牙买加", pinyin: "yamaijia", en: "Jamaica", region: "北美洲" },
-  { code: "HT", name: "海地", pinyin: "haidi", en: "Haiti", region: "北美洲" },
-  { code: "DO", name: "多米尼加", pinyin: "duominijia", en: "Dominican Republic", region: "北美洲" },
-  { code: "PA", name: "巴拿马", pinyin: "banama", en: "Panama", region: "北美洲" },
-  { code: "CR", name: "哥斯达黎加", pinyin: "gesidalijia", en: "Costa Rica", region: "北美洲" },
-  { code: "GT", name: "危地马拉", pinyin: "weidimala", en: "Guatemala", region: "北美洲" },
-  { code: "HN", name: "洪都拉斯", pinyin: "hongdulas", en: "Honduras", region: "北美洲" },
-  { code: "SV", name: "萨尔瓦多", pinyin: "saerwaduo", en: "El Salvador", region: "北美洲" },
-  { code: "NI", name: "尼加拉瓜", pinyin: "nijialagua", en: "Nicaragua", region: "北美洲" },
-  { code: "BZ", name: "伯利兹", pinyin: "bolizi", en: "Belize", region: "北美洲" },
-  { code: "BS", name: "巴哈马", pinyin: "bahama", en: "Bahamas", region: "北美洲" },
-  { code: "BB", name: "巴巴多斯", pinyin: "babaduosi", en: "Barbados", region: "北美洲" },
-  { code: "TT", name: "特立尼达和多巴哥", pinyin: "telinida", en: "Trinidad and Tobago", region: "北美洲" },
-  { code: "GD", name: "格林纳达", pinyin: "gelinnada", en: "Grenada", region: "北美洲" },
-  { code: "LC", name: "圣卢西亚", pinyin: "shengluxiya", en: "Saint Lucia", region: "北美洲" },
-  { code: "VC", name: "圣文森特", pinyin: "shengwensente", en: "Saint Vincent", region: "北美洲" },
-  { code: "AG", name: "安提瓜", pinyin: "antigua", en: "Antigua and Barbuda", region: "北美洲" },
-  { code: "KN", name: "圣基茨", pinyin: "shengjici", en: "Saint Kitts", region: "北美洲" },
-  { code: "DM", name: "多米尼克", pinyin: "duominike", en: "Dominica", region: "北美洲" },
-  
-  // 南美洲
-  { code: "BR", name: "巴西", pinyin: "baxi", en: "Brazil", region: "南美洲" },
-  { code: "AR", name: "阿根廷", pinyin: "agenting", en: "Argentina", region: "南美洲" },
-  { code: "CL", name: "智利", pinyin: "lizhi", en: "Chile", region: "南美洲" },
-  { code: "CO", name: "哥伦比亚", pinyin: "gelunbiya", en: "Colombia", region: "南美洲" },
-  { code: "PE", name: "秘鲁", pinyin: "bilu", en: "Peru", region: "南美洲" },
-  { code: "VE", name: "委内瑞拉", pinyin: "weineiruila", en: "Venezuela", region: "南美洲" },
-  { code: "EC", name: "厄瓜多尔", pinyin: "eguaduoer", en: "Ecuador", region: "南美洲" },
-  { code: "UY", name: "乌拉圭", pinyin: "wulagui", en: "Uruguay", region: "南美洲" },
-  { code: "PY", name: "巴拉圭", pinyin: "balagui", en: "Paraguay", region: "南美洲" },
-  { code: "BO", name: "玻利维亚", pinyin: "boliweiya", en: "Bolivia", region: "南美洲" },
-  { code: "GY", name: "圭亚那", pinyin: "guiyana", en: "Guyana", region: "南美洲" },
-  { code: "SR", name: "苏里南", pinyin: "sulinan", en: "Suriname", region: "南美洲" },
-  { code: "GF", name: "法属圭亚那", pinyin: "fazhuguiyana", en: "French Guiana", region: "南美洲" },
-  
-  // 非洲
-  { code: "ZA", name: "南非", pinyin: "nanfei", en: "South Africa", region: "非洲" },
-  { code: "EG", name: "埃及", pinyin: "aiji", en: "Egypt", region: "非洲" },
-  { code: "NG", name: "尼日利亚", pinyin: "niriliya", en: "Nigeria", region: "非洲" },
-  { code: "KE", name: "肯尼亚", pinyin: "kenniya", en: "Kenya", region: "非洲" },
-  { code: "ET", name: "埃塞俄比亚", pinyin: "saieweibiya", en: "Ethiopia", region: "非洲" },
-  { code: "TZ", name: "坦桑尼亚", pinyin: "tansangniya", en: "Tanzania", region: "非洲" },
-  { code: "UG", name: "乌干达", pinyin: "wuganda", en: "Uganda", region: "非洲" },
-  { code: "GH", name: "加纳", pinyin: "jiana", en: "Ghana", region: "非洲" },
-  { code: "MA", name: "摩洛哥", pinyin: "moluoge", en: "Morocco", region: "非洲" },
-  { code: "DZ", name: "阿尔及利亚", pinyin: "aerjiliya", en: "Algeria", region: "非洲" },
-  { code: "TN", name: "突尼斯", pinyin: "tunisi", en: "Tunisia", region: "非洲" },
-  { code: "LY", name: "利比亚", pinyin: "libiya", en: "Libya", region: "非洲" },
-  { code: "SD", name: "苏丹", pinyin: "sudan", en: "Sudan", region: "非洲" },
-  { code: "SN", name: "塞内加尔", pinyin: "saineijiaer", en: "Senegal", region: "非洲" },
-  { code: "ML", name: "马里", pinyin: "mali", en: "Mali", region: "非洲" },
-  { code: "BF", name: "布基纳法索", pinyin: "bujinafasuo", en: "Burkina Faso", region: "非洲" },
-  { code: "GN", name: "几内亚", pinyin: "jineiya", en: "Guinea", region: "非洲" },
-  { code: "SL", name: "塞拉利昂", pinyin: "sailaliang", en: "Sierra Leone", region: "非洲" },
-  { code: "LR", name: "利比里亚", pinyin: "libiliya", en: "Liberia", region: "非洲" },
-  { code: "CI", name: "科特迪瓦", pinyin: "ketediwa", en: "Ivory Coast", region: "非洲" },
-  { code: "TG", name: "多哥", pinyin: "duoge", en: "Togo", region: "非洲" },
-  { code: "BJ", name: "贝宁", pinyin: "beining", en: "Benin", region: "非洲" },
-  { code: "NE", name: "尼日尔", pinyin: "nirite", en: "Niger", region: "非洲" },
-  { code: "CM", name: "喀麦隆", pinyin: "kamailong", en: "Cameroon", region: "非洲" },
-  { code: "CF", name: "中非", pinyin: "zhongfei", en: "Central African Republic", region: "非洲" },
-  { code: "TD", name: "乍得", pinyin: "zhade", en: "Chad", region: "非洲" },
-  { code: "CD", name: "刚果(金)", pinyin: "gangguojin", en: "DR Congo", region: "非洲" },
-  { code: "CG", name: "刚果(布)", pinyin: "gangguobu", en: "Congo", region: "非洲" },
-  { code: "GA", name: "加蓬", pinyin: "jiapeng", en: "Gabon", region: "非洲" },
-  { code: "GQ", name: "赤道几内亚", pinyin: "chidaojineiya", en: "Equatorial Guinea", region: "非洲" },
-  { code: "ST", name: "圣多美", pinyin: "shengduomei", en: "Sao Tome", region: "非洲" },
-  { code: "GW", name: "几内亚比绍", pinyin: "jineiyabishao", en: "Guinea-Bissau", region: "非洲" },
-  { code: "GM", name: "冈比亚", pinyin: "gangbiya", en: "Gambia", region: "非洲" },
-  { code: "CV", name: "佛得角", pinyin: "fodejiao", en: "Cape Verde", region: "非洲" },
-  { code: "MR", name: "毛里塔尼亚", pinyin: "maolitaniya", en: "Mauritania", region: "非洲" },
-  { code: "EH", name: "西撒哈拉", pinyin: "xisahala", en: "Western Sahara", region: "非洲" },
-  { code: "ER", name: "厄立特里亚", pinyin: "eliteliya", en: "Eritrea", region: "非洲" },
-  { code: "DJ", name: "吉布提", pinyin: "jibuti", en: "Djibouti", region: "非洲" },
-  { code: "SO", name: "索马里", pinyin: "suomali", en: "Somalia", region: "非洲" },
-  { code: "RW", name: "卢旺达", pinyin: "luwangda", en: "Rwanda", region: "非洲" },
-  { code: "BI", name: "布隆迪", pinyin: "bulongdi", en: "Burundi", region: "非洲" },
-  { code: "MW", name: "马拉维", pinyin: "malawei", en: "Malawi", region: "非洲" },
-  { code: "MZ", name: "莫桑比克", pinyin: "mosangbike", en: "Mozambique", region: "非洲" },
-  { code: "ZM", name: "赞比亚", pinyin: "zanbiya", en: "Zambia", region: "非洲" },
-  { code: "ZW", name: "津巴布韦", pinyin: "jinbabuwei", en: "Zimbabwe", region: "非洲" },
-  { code: "BW", name: "博茨瓦纳", pinyin: "bociwana", en: "Botswana", region: "非洲" },
-  { code: "NA", name: "纳米比亚", pinyin: "namibiya", en: "Namibia", region: "非洲" },
-  { code: "AO", name: "安哥拉", pinyin: "angela", en: "Angola", region: "非洲" },
-  { code: "LS", name: "莱索托", pinyin: "laisuotuo", en: "Lesotho", region: "非洲" },
-  { code: "SZ", name: "斯威士兰", pinyin: "siweishilan", en: "Eswatini", region: "非洲" },
-  { code: "MG", name: "马达加斯加", pinyin: "madajiasijia", en: "Madagascar", region: "非洲" },
-  { code: "MU", name: "毛里求斯", pinyin: "maoliqiusi", en: "Mauritius", region: "非洲" },
-  { code: "KM", name: "科摩罗", pinyin: "kemoluo", en: "Comoros", region: "非洲" },
-  { code: "SC", name: "塞舌尔", pinyin: "saisheer", en: "Seychelles", region: "非洲" },
-  
-  // 大洋洲
-  { code: "AU", name: "澳大利亚", pinyin: "aodaliya", en: "Australia", region: "大洋洲" },
-  { code: "NZ", name: "新西兰", pinyin: "xinxilan", en: "New Zealand", region: "大洋洲" },
-  { code: "PG", name: "巴布亚新几内亚", pinyin: "babuyaxinjineiya", en: "Papua New Guinea", region: "大洋洲" },
-  { code: "FJ", name: "斐济", pinyin: "feiji", en: "Fiji", region: "大洋洲" },
-  { code: "SB", name: "所罗门群岛", pinyin: "suoluomenqundao", en: "Solomon Islands", region: "大洋洲" },
-  { code: "VU", name: "瓦努阿图", pinyin: "wanuat", en: "Vanuatu", region: "大洋洲" },
-  { code: "NC", name: "新喀里多尼亚", pinyin: "xinkaliduoniya", en: "New Caledonia", region: "大洋洲" },
-  { code: "PF", name: "法属波利尼西亚", pinyin: "fazhubolinixiya", en: "French Polynesia", region: "大洋洲" },
-  { code: "WS", name: "萨摩亚", pinyin: "samoya", en: "Samoa", region: "大洋洲" },
-  { code: "TO", name: "汤加", pinyin: "tangjia", en: "Tonga", region: "大洋洲" },
-  { code: "KI", name: "基里巴斯", pinyin: "jilibasi", en: "Kiribati", region: "大洋洲" },
-  { code: "NR", name: "瑙鲁", pinyin: "naolu", en: "Nauru", region: "大洋洲" },
-  { code: "TV", name: "图瓦卢", pinyin: "tuwalu", en: "Tuvalu", region: "大洋洲" },
-  { code: "PW", name: "帕劳", pinyin: "palao", en: "Palau", region: "大洋洲" },
-  { code: "MH", name: "马绍尔群岛", pinyin: "mashaoerqundao", en: "Marshall Islands", region: "大洋洲" },
-  { code: "FM", name: "密克罗尼西亚", pinyin: "mikeluonixiya", en: "Micronesia", region: "大洋洲" },
-  { code: "CK", name: "库克群岛", pinyin: "kukequndao", en: "Cook Islands", region: "大洋洲" },
-  { code: "NU", name: "纽埃", pinyin: "niuai", en: "Niue", region: "大洋洲" },
-  { code: "TK", name: "托克劳", pinyin: "tuokelao", en: "Tokelau", region: "大洋洲" },
-  { code: "WF", name: "瓦利斯", pinyin: "walisi", en: "Wallis", region: "大洋洲" },
-  { code: "AS", name: "美属萨摩亚", pinyin: "meishusamoya", en: "American Samoa", region: "大洋洲" },
-  { code: "GU", name: "关岛", pinyin: "guandao", en: "Guam", region: "大洋洲" },
-  { code: "MP", name: "北马里亚纳", pinyin: "beimaliyana", en: "Northern Mariana", region: "大洋洲" },
+  { code: "CN", name: "中国", region: "亚洲" },
+  { code: "US", name: "美国", region: "北美洲" },
+  { code: "GB", name: "英国", region: "欧洲" },
+  { code: "JP", name: "日本", region: "亚洲" },
+  { code: "KR", name: "韩国", region: "亚洲" },
+  { code: "SG", name: "新加坡", region: "亚洲" },
+  { code: "DE", name: "德国", region: "欧洲" },
+  { code: "FR", name: "法国", region: "欧洲" },
+  { code: "AU", name: "澳大利亚", region: "大洋洲" },
+  { code: "CA", name: "加拿大", region: "北美洲" },
+  { code: "PH", name: "菲律宾", region: "亚洲" },
+  { code: "ID", name: "印尼", region: "亚洲" },
+  { code: "TH", name: "泰国", region: "亚洲" },
+  { code: "VN", name: "越南", region: "亚洲" },
+  { code: "MY", name: "马来西亚", region: "亚洲" },
+  { code: "IN", name: "印度", region: "亚洲" },
+  { code: "AE", name: "阿联酋", region: "亚洲" },
+  { code: "SA", name: "沙特", region: "亚洲" },
+  { code: "BR", name: "巴西", region: "南美洲" },
+  { code: "MX", name: "墨西哥", region: "北美洲" },
+  { code: "RU", name: "俄罗斯", region: "欧洲" },
+  { code: "IT", name: "意大利", region: "欧洲" },
+  { code: "ES", name: "西班牙", region: "欧洲" },
+  { code: "NL", name: "荷兰", region: "欧洲" },
+  { code: "CH", name: "瑞士", region: "欧洲" },
+  { code: "SE", name: "瑞典", region: "欧洲" },
+  { code: "NZ", name: "新西兰", region: "大洋洲" },
+  { code: "ZA", name: "南非", region: "非洲" },
+  { code: "EG", name: "埃及", region: "非洲" },
+  { code: "NG", name: "尼日利亚", region: "非洲" },
 ];
 
-// Country dropdown functions
-function showAllCountries() {
+// 初始化国家下拉
+function initCountryDropdown() {
   const dropdown = document.getElementById('countryDropdown');
   const regions = [...new Set(COUNTRIES.map(c => c.region))];
   
   let html = '';
   regions.forEach(region => {
-    const regionCountries = COUNTRIES.filter(c => c.region === region);
-    html += `<div class="country-group">
-      <div class="country-group-header">${region}</div>
-      ${regionCountries.map(c => `
-        <div onclick="selectCountry('${c.code}', '${c.name}')" class="country-option">
-          <span class="font-medium">${c.name}</span>
-          <span class="text-slate-400 text-sm">${c.code}</span>
+    const countries = COUNTRIES.filter(c => c.region === region);
+    html += `<div class="country-group-header">${region}</div>`;
+    countries.forEach(c => {
+      html += `
+        <div class="country-option" onclick="selectCountry('${c.code}', '${c.name}')">
+          <span>${c.name}</span>
+          <span class="code">${c.code}</span>
         </div>
-      `).join('')}
-    </div>`;
+      `;
+    });
   });
   
   dropdown.innerHTML = html;
-  dropdown.classList.remove('hidden');
 }
 
-function filterCountries(query) {
-  const dropdown = document.getElementById('countryDropdown');
-  const q = query.toLowerCase().trim();
-  
-  if (!q) {
-    showAllCountries();
-    return;
-  }
-  
-  const matches = COUNTRIES.filter(c => 
-    c.name.toLowerCase().includes(q) || 
-    c.pinyin.includes(q) || 
-    c.code.toLowerCase().includes(q) ||
-    c.en.toLowerCase().includes(q)
-  );
-  
-  if (matches.length === 0) {
-    dropdown.innerHTML = `<div class="p-3 text-slate-400 text-sm">未找到匹配的国家</div>`;
-    dropdown.classList.remove('hidden');
-    return;
-  }
-  
-  const regions = [...new Set(matches.map(c => c.region))];
-  let html = '';
-  regions.forEach(region => {
-    const regionCountries = matches.filter(c => c.region === region);
-    html += `<div class="country-group">
-      <div class="country-group-header">${region}</div>
-      ${regionCountries.map(c => `
-        <div onclick="selectCountry('${c.code}', '${c.name}')" class="country-option">
-          <span class="font-medium">${c.name}</span>
-          <span class="text-slate-400 text-sm">${c.code}</span>
-        </div>
-      `).join('')}
-    </div>`;
-  });
-  
-  dropdown.innerHTML = html;
-  dropdown.classList.remove('hidden');
+function toggleCountryDropdown() {
+  document.getElementById('countryDropdown').classList.toggle('show');
 }
 
 function selectCountry(code, name) {
-  document.getElementById('countrySearch').value = name;
+  document.getElementById('countryInput').value = name;
   document.getElementById('countryCode').value = code;
-  document.getElementById('countryDropdown').classList.add('hidden');
+  document.getElementById('countryDropdown').classList.remove('show');
 }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-  const container = document.querySelector('.relative.md\\:col-span-1');
-  if (container && !container.contains(e.target)) {
-    document.getElementById('countryDropdown').classList.add('hidden');
+// 点击外部关闭下拉
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.country-select-wrapper')) {
+    document.getElementById('countryDropdown').classList.remove('show');
   }
 });
 
-// Form submission
-document.getElementById('submitForm').addEventListener('submit', async (e) => {
+// 选择联系方式
+function selectContact(el) {
+  document.querySelectorAll('.contact-option').forEach(opt => opt.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// 表单提交
+document.getElementById('jobForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  const txtSpan = document.getElementById('btnText');
-  const loader = document.getElementById('btnLoader');
-
-  txtSpan.innerText = '提交中...';
-  loader.classList.remove('hidden');
-  submitBtn.disabled = true; 
-  submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-
-  const getLines = (id) => document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(Boolean);
-
+  
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '发布中...';
+  
+  const contactPlatform = document.querySelector('.contact-option.selected').dataset.value;
+  
   const body = {
     title: document.getElementById('title').value,
-    company_name: document.getElementById('company_name').value,
-    country: document.getElementById('countryCode').value || document.getElementById('countrySearch').value,
+    company: document.getElementById('company').value,
+    country: document.getElementById('countryCode').value,
     city: document.getElementById('city').value,
     salary: document.getElementById('salary').value,
-    job_type: document.getElementById('job_type').value,
-    contact_platform: document.getElementById('contact_platform').value,
-    contact_link: document.getElementById('contact_link').value,
+    job_type: document.getElementById('jobType').value,
+    experience: document.getElementById('experience').value,
     description: document.getElementById('description').value,
-    requirements: getLines('requirements'),
-    responsibilities: getLines('responsibilities'),
-    tags: document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean),
-    status: 'pending', 
-    report_enabled: true,
+    contact_platform: contactPlatform,
+    contact_link: document.getElementById('contactLink').value,
+    tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    status: 'pending'
   };
-
+  
   try {
-    const res = await fetch('/api/admin/jobs', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(body) 
+    const res = await fetch('/api/admin/jobs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
-    const json = await res.json().catch(()=>({}));
-    if (!res.ok) {
-      alert(json.message || '提交失败，请重试。');
+    
+    if (res.ok) {
+      document.getElementById('successModal').classList.add('show');
     } else {
-      setTimeout(() => {
-        document.getElementById('formContainer').style.opacity = '0';
-        setTimeout(() => {
-           document.getElementById('successMsg').classList.remove('hidden');
-           document.getElementById('successMsg').classList.add('show');
-        }, 400);
-      }, 300);
+      alert('发布失败，请重试');
+      btn.disabled = false;
+      btn.textContent = '发布岗位';
     }
   } catch (err) {
-    alert('网络错误，请重试。');
-  } finally {
-    if(document.getElementById('formContainer').style.opacity !== '0') {
-      txtSpan.innerText = '提交岗位';
-      loader.classList.add('hidden');
-      submitBtn.disabled = false; 
-      submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-    }
+    alert('网络错误，请重试');
+    btn.disabled = false;
+    btn.textContent = '发布岗位';
   }
 });
+
+function resetForm() {
+  document.getElementById('jobForm').reset();
+  document.getElementById('successModal').classList.remove('show');
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('submitBtn').textContent = '发布岗位';
+}
+
+// 初始化
+initCountryDropdown();
 </script>
+
 </body>
 </html>
