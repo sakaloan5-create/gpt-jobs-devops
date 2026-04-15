@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post a Request - GPTJobs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['"Plus Jakarta Sans"','sans-serif'] },
+      colors: {
+        brand: { 50:'#f0fdfa', 100:'#ccfbf1', 500:'#14b8a6', 600:'#0d9488', 900:'#134e4a', 950:'#042f2e' },
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #0f172a; overflow-x: hidden; }
+  
+  .form-input {
+    width: 100%; padding: 0.875rem 1rem; background-color: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 0.75rem; color: #0f172a; font-size: 0.9375rem; transition: all 0.2s ease;
+  }
+  .form-input:focus {
+    background-color: #ffffff; border-color: #14b8a6; outline: none;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+  }
+  .form-label {
+    display: block; font-size: 0.875rem; font-weight: 600; color: #334155; margin-bottom: 0.5rem;
+  }
+  
+  .split-bg {
+    background: linear-gradient(135deg, #042f2e 0%, #134e4a 100%);
+    position: relative; overflow: hidden;
+  }
+  .split-bg::after {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Custom Scrollbar for the right panel */
+  .scroll-panel::-webkit-scrollbar { width: 8px; }
+  .scroll-panel::-webkit-scrollbar-track { background: transparent; }
+  .scroll-panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid #ffffff; }
+  .scroll-panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  .btn-submit {
+    background-color: #0d9488; color: white; transition: all 0.2s ease; box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.39);
+  }
+  .btn-submit:hover { background-color: #0f766e; box-shadow: 0 6px 20px rgba(13, 148, 136, 0.23); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(1px); }
+
+  #successOverlay {
+    backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+  }
+  #successOverlay.show { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body class="h-screen flex flex-col md:flex-row antialiased">
+
+  <!-- Success Overlay -->
+  <div id="successOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90">
+    <div class="bg-white border border-slate-100 shadow-2xl rounded-3xl p-12 max-w-lg w-full text-center mx-4 transform scale-95 transition-transform duration-500" id="successCard">
+       <div class="w-24 h-24 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-8">
+         <svg class="w-12 h-12 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+       </div>
+       <h2 class="text-3xl font-bold text-slate-900 mb-4">Request Submitted!</h2>
+       <p class="text-slate-500 mb-8 leading-relaxed">Your job requirement has been securely routed to our network operators. We will process and publish your node shortly.</p>
+       <button onclick="location.reload()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition">Submit Another Requirement</button>
+    </div>
+  </div>
+
+  <!-- Left Panel: Branding & Value Prop -->
+  <div class="split-bg hidden md:flex w-5/12 lg:w-4/12 flex-col justify-between p-12 lg:p-16 text-white relative shadow-2xl z-10">
+    <div>
+      <div class="flex items-center gap-3 mb-16">
+        <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg font-bold text-white tracking-widest text-sm">GP</div>
+        <span class="text-xl font-bold tracking-tight">GPTJobs Network</span>
+      </div>
+      
+      <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-6">
+        Find the perfect <br><span class="text-brand-500">talent node.</span>
+      </h1>
+      <p class="text-brand-100/70 text-lg mb-12">Submit your job requirements to our verified global network. High quality matches, zero friction.</p>
+
+      <ul class="space-y-6">
+        <li class="flex items-start gap-4">
+          <div class="mt-1 bg-brand-500/20 p-2 rounded-lg text-brand-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+          <div>
+            <h3 class="font-bold text-white text-lg">Instant Distribution</h3>
+            <p class="text-brand-100/60 text-sm mt-1">Your listing is broadcasted immediately upon approval.</p>
+          </div>
+        </li>
+        <li class="flex items-start gap-4">
+          <div class="mt-1 bg-brand-500/20 p-2 rounded-lg text-brand-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></div>
+          <div>
+            <h3 class="font-bold text-white text-lg">Verified Ecosystem</h3>
+            <p class="text-brand-100/60 text-sm mt-1">Manual review ensures high quality standards.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="mt-12 pt-8 border-t border-brand-500/20 text-brand-100/50 text-sm">
+      &copy; 2026 GPTJobs Console. Secure Terminal.
+    </div>
+  </div>
+
+  <!-- Right Panel: Form Area -->
+  <div class="flex-1 bg-white flex flex-col h-screen scroll-panel overflow-y-auto">
+    <div class="max-w-3xl w-full mx-auto p-8 md:p-12 lg:p-16 xl:py-20 xl:px-24">
+      
+      <!-- Mobile only header -->
+      <div class="md:hidden mb-10 flex items-center gap-3">
+        <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center font-bold text-white text-sm">GP</div>
+        <span class="text-xl font-bold text-slate-900">Post a Requirement</span>
+      </div>
+
+      <div class="mb-10">
+        <h2 class="text-2xl font-bold text-slate-900">Job Requirement Details</h2>
+        <p class="text-slate-500 mt-2">Fill out the fields below to create a new position listing.</p>
+      </div>
+
+      <form id="submitForm" class="space-y-10 border-b border-slate-100 pb-12">
+        
+        <!-- Section 1 -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-4 mb-6">
+             <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center text-sm">1</div>
+             <h3 class="text-lg font-bold text-slate-800">Basic Information</h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Job Title <span class="text-red-500">*</span></label>
+              <input id="title" required class="form-input" placeholder="e.g. Lead Frontend Engineer">
+            </div>
+            <div>
+              <label class="form-label">Company Name <span class="text-red-500">*</span></label>
+              <input id="company_name" required class="form-input" placeholder="Your hiring entity">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="relative">
+              <label class="form-label">Country <span class="text-red-500">*</span></label>
+              <select id="country" required class="form-input appearance-none pr-10">
+                <option value="" disabled selected hidden>Select Region</option>
+                <option value="BR">Brazil</option><option value="PH">Philippines</option><option value="ID">Indonesia</option>
+                <option value="MX">Mexico</option><option value="IN">India</option><option value="US">United States</option>
+              </select>
+              <div class="absolute right-4 top-[38px] pointer-events-none text-slate-400">▼</div>
+            </div>
+            <div>
+              <label class="form-label">City <span class="text-red-500">*</span></label>
+              <input id="city" required class="form-input" placeholder="e.g. Remote">
+            </div>
+            <div>
+              <label class="form-label">Compensation <span class="text-red-500">*</span></label>
+              <input id="salary" required class="form-input" placeholder="e.g. $8k - $10k / mo">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-4 mb-6">
+             <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center text-sm">2</div>
+             <h3 class="text-lg font-bold text-slate-800">Role Details</h3>
+          </div>
+          <div>
+            <label class="form-label">Full Description <span class="text-red-500">*</span></label>
+            <textarea id="description" rows="4" required class="form-input" placeholder="Provide a comprehensive overview of the role..."></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Requirements (Bulleted)</label>
+              <textarea id="requirements" rows="5" class="form-input placeholder-slate-300" placeholder="- React expertise&#10;- 5+ Years UI/UX&#10;- English B2+"></textarea>
+            </div>
+            <div>
+               <label class="form-label">Key Responsibilities</label>
+               <textarea id="responsibilities" rows="5" class="form-input placeholder-slate-300" placeholder="- Lead architecture&#10;- Oversee deployment"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-4 mb-6">
+             <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center text-sm">3</div>
+             <h3 class="text-lg font-bold text-slate-800">Connection & Routing</h3>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div class="md:col-span-4 relative">
+              <label class="form-label">Job Type</label>
+              <select id="job_type" class="form-input appearance-none pr-10">
+                <option value="Full-time">Full-time</option><option value="Part-time">Part-time</option><option value="Contract">Contract</option>
+              </select>
+              <div class="absolute right-4 top-[38px] pointer-events-none text-slate-400">▼</div>
+            </div>
+            <div class="md:col-span-4 relative">
+              <label class="form-label">Contact Platform</label>
+              <select id="contact_platform" class="form-input appearance-none pr-10">
+                <option value="whatsapp">WhatsApp</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="external_url">Web Link</option>
+              </select>
+              <div class="absolute right-4 top-[38px] pointer-events-none text-slate-400">▼</div>
+            </div>
+             <div class="md:col-span-4">
+              <label class="form-label">Contact Link / Value <span class="text-red-500">*</span></label>
+              <input id="contact_link" required class="form-input text-brand-600 font-medium" placeholder="https://...">
+            </div>
+            <div class="md:col-span-12">
+              <label class="form-label">Tags (Comma Separated)</label>
+              <input id="tags" class="form-input" placeholder="Remote, Design, Crypto">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-8">
+           <button type="submit" class="btn-submit w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3">
+             <span id="btnText">Publish Requirement</span>
+             <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+             <svg id="btnLoader" class="hidden animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+           </button>
+           <p class="text-center text-slate-400 text-sm mt-4">By publishing, you agree to the verified network guidelines.</p>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+<script>
+document.getElementById('submitForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const txtSpan = document.getElementById('btnText');
+  const loader = document.getElementById('btnLoader');
+  const icon = document.getElementById('btnIcon');
+  
+  txtSpan.innerText = 'Processing...';
+  icon.classList.add('hidden');
+  loader.classList.remove('hidden');
+  submitBtn.disabled = true; submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+
+  const getLines = (id) => document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(Boolean);
+  
+  const body = {
+    title: document.getElementById('title').value,
+    company_name: document.getElementById('company_name').value,
+    country: document.getElementById('country').value,
+    city: document.getElementById('city').value,
+    salary: document.getElementById('salary').value,
+    job_type: document.getElementById('job_type').value,
+    contact_platform: document.getElementById('contact_platform').value,
+    contact_link: document.getElementById('contact_link').value,
+    description: document.getElementById('description').value,
+    requirements: getLines('requirements'),
+    responsibilities: getLines('responsibilities'),
+    tags: document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean),
+    status: 'pending', report_enabled: true,
+  };
+
+  try {
+    const res = await fetch('/api/admin/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok) {
+      alert(json.message || 'Submission failed. Please check your data.');
+    } else {
+      const ov = document.getElementById('successOverlay');
+      const cd = document.getElementById('successCard');
+      ov.classList.add('show');
+      setTimeout(() => { cd.classList.remove('scale-95'); cd.classList.add('scale-100'); }, 50);
+    }
+  } catch (err) {
+    alert('Network error. Is the API server running?');
+  } finally {
+    txtSpan.innerText = 'Publish Requirement';
+    icon.classList.remove('hidden');
+    loader.classList.add('hidden');
+    submitBtn.disabled = false; submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+  }
+});
+</script>
+</body>
+</html>
