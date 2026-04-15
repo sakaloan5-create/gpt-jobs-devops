@@ -45,6 +45,11 @@ app.get('/submit', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/submit.html'));
 });
 
+// Additional static pages
+app.get('/submit-v2.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/submit-v2.html'));
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ code: 404, message: 'Not found', data: null });
