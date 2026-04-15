@@ -14,6 +14,7 @@ router.get('/jobs', jobsController.listJobs);
 router.get('/job/detail', jobsController.getJobDetail);
 router.post('/report', reportsController.createReport);
 router.get('/app/config', configController.getAppConfig);
+router.get('/countries', countriesController.listCountries);
 
 // Admin Job CRUD APIs
 router.post('/admin/jobs', adminJobsController.createJob);
@@ -37,5 +38,6 @@ router.post('/admin/configs', adminConfigController.updateAdminConfig);
 router.post('/events', eventsController.createEvent);
 router.get('/admin/events/stats', eventsController.getEventStats);
 router.get('/admin/events/job-stats', eventsController.getJobStats);
+router.get('/admin/stats', eventsController.getEventStats);
 
 module.exports = router;
