@@ -450,6 +450,23 @@ textarea {
         <input type="url" id="contactLink" placeholder="例如：https://wa.me/86138xxxxxxxx" required>
       </div>
 
+      <!-- 带追踪的联系按钮 -->
+      <div class="form-group">
+        <label>测试联系按钮（带追踪）</label>
+        <a href="#" 
+           id="contactBtn"
+           data-contact-link="" 
+           data-contact-type="whatsapp"
+           class="btn-submit"
+           style="display: inline-block; text-decoration: none; text-align: center;"
+           onclick="return handleContactClick(this);">
+          👆 点击联系（测试追踪）
+        </a>
+        <p style="font-size: 12px; color: #718096; margin-top: 8px;">
+          点击后会触发 Adjust + FB + TikTok + Firebase 事件
+        </p>
+      </div>
+
       <div class="form-group">
         <label>标签（用逗号分隔）</label>
         <input type="text" id="tags" placeholder="例如：远程, 区块链, 英语流利">
@@ -550,6 +567,7 @@ document.addEventListener('click', (e) => {
 function selectContact(el) {
   document.querySelectorAll('.contact-option').forEach(opt => opt.classList.remove('selected'));
   el.classList.add('selected');
+  updateContactBtn();
 }
 
 // 表单提交
@@ -605,9 +623,53 @@ function resetForm() {
   document.getElementById('submitBtn').textContent = '发布岗位';
 }
 
+// 更新联系按钮链接
+function updateContactBtn() {
+  const btn = document.getElementById('contactBtn');
+  const link = document.getElementById('contactLink').value;
+  const type = document.querySelector('.contact-option.selected').dataset.value;
+  
+  btn.href = link || '#';
+  btn.dataset.contactLink = link;
+  btn.dataset.contactType = type;
+}
+
+// 处理联系按钮点击
+function handleContactClick(btn) {
+  const link = btn.dataset.contactLink;
+  const type = btn.dataset.contactType;
+  
+  if (!link || link === '#') {
+    alert('请先填写联系链接');
+    return false;
+  }
+  
+  // 调用追踪函数（如果已加载）
+  if (window.trackContact) {
+    window.trackContact(type, link);
+    
+    // 延迟跳转，确保事件发送完成
+    setTimeout(() => {
+      window.open(link, '_blank');
+    }, 300);
+    
+    return false;
+  }
+  
+  return true;
+}
+
+// 监听输入变化，更新按钮
+document.getElementById('contactLink').addEventListener('input', updateContactBtn);
+
+// 初始化按钮
+updateContactBtn();
+
 // 初始化
 initCountryDropdown();
 </script>
+
+<script src="./js/tracking.js"></script>
 
 </body>
 </html>
