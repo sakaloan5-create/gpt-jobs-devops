@@ -24,10 +24,14 @@ async function createEvent(req, res, next) {
 
 async function getEventStats(req, res, next) {
   try {
-    const { start_date, end_date } = req.query;
+    let { start_date, end_date } = req.query;
     
+    // 如果没有提供日期参数，默认使用最近30天
     if (!start_date || !end_date) {
-      return error(res, 'Missing required query params: start_date, end_date', 400);
+      const now = new Date();
+      end_date = now.toISOString().split('T')[0];
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      start_date = thirtyDaysAgo.toISOString().split('T')[0];
     }
     
     const data = await eventsService.getEventStats(start_date, end_date);
@@ -39,10 +43,14 @@ async function getEventStats(req, res, next) {
 
 async function getJobStats(req, res, next) {
   try {
-    const { start_date, end_date, country } = req.query;
+    let { start_date, end_date, country } = req.query;
     
+    // 如果没有提供日期参数，默认使用最近30天
     if (!start_date || !end_date) {
-      return error(res, 'Missing required query params: start_date, end_date', 400);
+      const now = new Date();
+      end_date = now.toISOString().split('T')[0];
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      start_date = thirtyDaysAgo.toISOString().split('T')[0];
     }
     
     const data = await eventsService.getJobStats(start_date, end_date, country);

@@ -1,0 +1,8 @@
+runtime: nodejs20
+service: default
+handlers:
+  - url: /admin
+    static_files: ../admin.html
+    upload: ../admin.html
+  - url: /.*
+    script: auto

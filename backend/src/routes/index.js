@@ -6,6 +6,7 @@ const adminJobsController = require('../controllers/adminJobs');
 const countriesController = require('../controllers/countries');
 const adminConfigController = require('../controllers/adminConfig');
 const eventsController = require('../controllers/events');
+const locationController = require('../controllers/location');
 
 const router = express.Router();
 
@@ -15,6 +16,10 @@ router.get('/job/detail', jobsController.getJobDetail);
 router.post('/report', reportsController.createReport);
 router.get('/app/config', configController.getAppConfig);
 router.get('/countries', countriesController.listCountries);
+
+// Location APIs
+router.get('/location', locationController.getLocationByIp);
+router.get('/init', locationController.getInitLocation);
 
 // Admin Job CRUD APIs
 router.post('/admin/jobs', adminJobsController.createJob);

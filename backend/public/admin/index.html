@@ -1,874 +1,320 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>GigStream 后台管理</title>
-<script src="./tw-cdn.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-html, body { height: 100%; background-color: #f8fafc; color: #334155; font-family: 'Inter', sans-serif; }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-.sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 0.375rem; color: #94a3b8; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
-.sidebar-link:hover { color: #f8fafc; background: rgba(255,255,255,0.05); }
-.sidebar-link.active { color: #fff; background: rgba(255,255,255,0.1); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; font-size: 0.875rem; font-weight: 500; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; border: none; }
-.btn-primary { background: #2563eb; color: #fff; }
-.btn-secondary { background: #fff; color: #475569; border: 1px solid #cbd5e1; }
-.badge { padding: 0.125rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: none; align-items: center; justify-content: center; z-index: 50; }
-.modal-overlay.open { display: flex; }
-.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 60; background: #1e293b; color: #fff; padding: 1rem; border-radius: 0.5rem; transform: translateY(150%); transition: transform 0.3s; }
-.toast.show { transform: translateY(0); }
-input, select { background: #fff; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.5rem; }
-input:focus { border-color: #3b82f6; outline: none; }
-.analytics-table th, .analytics-table td { padding: 0.75rem; border-bottom: 1px solid #e2e8f0; }
-.analytics-table th { background: #f8fafc; font-weight: 500; text-align: left; }
-.analytics-table td { text-align: center; }
-.analytics-table td:first-child, .analytics-table th:first-child { text-align: left; }
-.country-group { margin-bottom: 1rem; }
-.country-group-header { background: #f1f5f9; padding: 0.5rem 0.75rem; font-weight: 600; font-size: 0.875rem; color: #475569; border-radius: 0.375rem; margin-bottom: 0.5rem; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GigStream 管理后台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .header { background: #2196F3; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .tab { padding: 10px 20px; border: none; background: none; cursor: pointer; border-radius: 4px; }
+        .tab.active { background: #2196F3; color: white; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #2196F3; color: white; }
+        .btn-success { background: #4CAF50; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-active { background: #4CAF50; color: white; }
+        .badge-pending { background: #ff9800; color: white; }
+        .badge-rejected { background: #f44336; color: white; }
+        .actions { display: flex; gap: 5px; }
+        .actions button { padding: 5px 10px; font-size: 12px; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 18px; }
+        .close { font-size: 24px; cursor: pointer; color: #999; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 4px; color: white; display: none; z-index: 2000; }
+        .toast.success { background: #4CAF50; }
+        .toast.error { background: #f44336; }
+    </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden text-sm">
-
-<header class="h-14 bg-slate-900 text-white flex items-center justify-between px-6 border-b border-slate-800">
-  <span class="font-semibold text-base">GigStream 后台管理</span>
-  <div class="flex items-center gap-4 text-slate-300">
-    <span class="w-2 h-2 rounded-full bg-green-400"></span>
-    <span class="text-xs">系统运行正常</span>
-  </div>
-</header>
-
-<div class="flex flex-1 overflow-hidden">
-  <aside class="w-60 bg-slate-900 border-r border-slate-800 flex flex-col pt-4 pb-4">
-    <nav class="flex-1 px-3 space-y-1">
-      <div class="sidebar-link active" data-tab="review" onclick="switchTab('review')"><span>审核中心</span></div>
-      <div class="sidebar-link" data-tab="jobs" onclick="switchTab('jobs')"><span>岗位管理</span></div>
-      <div class="sidebar-link" data-tab="reports" onclick="switchTab('reports')"><span>举报处理</span></div>
-      <div class="sidebar-link" data-tab="analytics" onclick="switchTab('analytics')"><span>数据统计</span></div>
-      <div class="sidebar-link" data-tab="config" onclick="switchTab('config')"><span>应用配置</span></div>
-    </nav>
-  </aside>
-
-  <main class="flex-1 bg-slate-50 flex flex-col overflow-hidden">
-    <div class="bg-white border-b border-slate-200 px-8 py-5 flex items-center justify-between">
-      <div>
-        <h1 id="pageTitle" class="text-xl font-semibold text-slate-900">审核中心</h1>
-        <p id="pageSubtitle" class="text-sm text-slate-500 mt-1">管理待审核岗位</p>
-      </div>
-      <div id="headerActions"></div>
+<body>
+    <div class="header">
+        <h1>🏢 GigStream 管理后台</h1>
+        <span id="apiStatus">API: 检测中...</span>
     </div>
 
-    <div class="flex-1 overflow-auto p-8">
-      <!-- REVIEW PANEL -->
-      <div id="panel-review" class="tab-panel active">
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
-          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <span class="font-medium text-slate-800">待审核列表</span>
-            <span id="reviewStat" class="text-xs text-slate-500">0 条</span>
-          </div>
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
-              <tr><th class="px-6 py-3">岗位 / 公司</th><th class="px-6 py-3">地区</th><th class="px-6 py-3">薪资</th><th class="px-6 py-3">提交时间</th><th class="px-6 py-3 text-right">操作</th></tr>
-            </thead>
-            <tbody id="reviewTable" class="divide-y divide-slate-100"></tbody>
-          </table>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('jobs')">📋 岗位管理</button>
+            <button class="tab" onclick="showTab('create')">➕ 新增岗位</button>
+            <button class="tab" onclick="showTab('stats')">📊 数据统计</button>
         </div>
-      </div>
 
-      <!-- JOBS PANEL -->
-      <div id="panel-jobs" class="tab-panel">
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6 flex flex-wrap items-center gap-4">
-          <input id="jobSearch" type="text" placeholder="搜索岗位..." class="w-64">
-          <select id="jobFilterCountry" class="w-32"><option value="">全部国家</option></select>
-          <select id="jobFilterStatus" class="w-32">
-            <option value="">全部状态</option>
-            <option value="active">已通过</option>
-            <option value="pending">待审核</option>
-            <option value="banned">已封禁</option>
-            <option value="rejected">已拒绝</option>
-          </select>
-          <div class="flex-1"></div>
-          <button onclick="openJobModal()" class="btn btn-primary">+ 新增岗位</button>
+        <!-- 岗位列表 -->
+        <div id="jobsPanel" class="panel active">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>岗位列表</h3>
+                    <button class="btn btn-primary" onclick="refreshJobs()">🔄 刷新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>岗位名称</th>
+                            <th>公司</th>
+                            <th>国家</th>
+                            <th>薪资</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsTable">
+                        <tr><td colspan="6" class="empty">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
-              <tr><th class="px-6 py-3">岗位信息</th><th class="px-6 py-3">地点</th><th class="px-6 py-3">状态</th><th class="px-6 py-3 text-right">操作</th></tr>
-            </thead>
-            <tbody id="jobTable" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- REPORTS PANEL -->
-      <div id="panel-reports" class="tab-panel">
-        <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
-          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <span class="font-medium text-slate-800">举报队列</span>
-            <div class="flex gap-2">
-              <button onclick="setReportFilter('')" class="px-3 py-1 rounded text-xs bg-slate-200">全部</button>
-              <button onclick="setReportFilter('pending')" class="px-3 py-1 rounded text-xs">待处理</button>
+        <!-- 新增岗位 -->
+        <div id="createPanel" class="panel">
+            <div class="card">
+                <h3 style="margin-bottom: 20px;">发布新岗位</h3>
+                <form id="createForm" onsubmit="handleCreate(event)">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>岗位名称 *</label>
+                            <input type="text" name="title" required placeholder="如：Python工程师">
+                        </div>
+                        <div class="form-group">
+                            <label>公司名称 *</label>
+                            <input type="text" name="company_name" required placeholder="如：字节跳动">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>国家/地区 *</label>
+                            <select name="country" required>
+                                <option value="">请选择</option>
+                                <option value="CN">🇨🇳 中国</option>
+                                <option value="US">🇺🇸 美国</option>
+                                <option value="SG">🇸🇬 新加坡</option>
+                                <option value="JP">🇯🇵 日本</option>
+                                <option value="GB">🇬🇧 英国</option>
+                                <option value="DE">🇩🇪 德国</option>
+                                <option value="CA">🇨🇦 加拿大</option>
+                                <option value="AU">🇦🇺 澳大利亚</option>
+                                <option value="OTH">🌍 其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>薪资范围 *</label>
+                            <input type="text" name="salary" required placeholder="如：20k-40k">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>工作类型 *</label>
+                            <select name="job_type" required>
+                                <option value="full_time">全职</option>
+                                <option value="part_time">兼职</option>
+                                <option value="intern">实习</option>
+                                <option value="remote">远程</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>联系平台 *</label>
+                            <select name="contact_platform" required>
+                                <option value="WeChat">微信</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Email">邮箱</option>
+                                <option value="Telegram">Telegram</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>联系账号 *</label>
+                        <input type="text" name="contact_link" required placeholder="如：微信号、邮箱地址">
+                    </div>
+                    <div class="form-group">
+                        <label>岗位描述 *</label>
+                        <textarea name="description" required placeholder="详细描述岗位要求、职责、福利等..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">✅ 发布岗位</button>
+                </form>
             </div>
-          </div>
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
-              <tr><th class="px-6 py-3">类型</th><th class="px-6 py-3">详情</th><th class="px-6 py-3">岗位ID</th><th class="px-6 py-3">状态</th><th class="px-6 py-3 text-right">操作</th></tr>
-            </thead>
-            <tbody id="reportTable" class="divide-y divide-slate-100"></tbody>
-          </table>
         </div>
-      </div>
 
-      <!-- ANALYTICS PANEL - Enhanced with per-country per-job stats -->
-      <div id="panel-analytics" class="tab-panel">
-        <div class="flex flex-col gap-4">
-          <!-- Date Filter -->
-          <div class="flex flex-wrap items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <label class="text-sm text-slate-500">开始日期</label>
-            <input id="analyticsStartDate" type="date">
-            <label class="text-sm text-slate-500">结束日期</label>
-            <input id="analyticsEndDate" type="date">
-            <select id="analyticsCountryFilter" class="w-40">
-              <option value="">所有国家</option>
-            </select>
-            <button onclick="loadAnalytics()" class="btn btn-primary">查询</button>
-          </div>
-          
-          <!-- Per-Country Job Stats Table -->
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
-              <div class="text-sm font-medium text-slate-700">各国家岗位数据统计</div>
-              <div class="text-xs text-slate-400">浏览 / 详情 / 联系</div>
+        <!-- 数据统计 -->
+        <div id="statsPanel" class="panel">
+            <div class="card">
+                <h3>访问统计</h3>
+                <div id="statsContent" class="empty">加载中...</div>
             </div>
-            <div id="analyticsContent" class="p-4">
-              <div class="text-center py-8 text-slate-400">请选择日期范围查询</div>
-            </div>
-          </div>
         </div>
-      </div>
-
-      <!-- CONFIG PANEL -->
-      <div id="panel-config" class="tab-panel">
-        <div class="max-w-2xl">
-          <form id="configForm" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
-            <div>
-              <h3 class="text-sm font-semibold text-slate-900 mb-4">功能开关</h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3">
-                  <span class="text-sm text-slate-700">搜索</span>
-                  <input type="checkbox" id="cfgSearch" class="w-5 h-5">
-                </label>
-                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3">
-                  <span class="text-sm text-slate-700">筛选</span>
-                  <input type="checkbox" id="cfgFilter" class="w-5 h-5">
-                </label>
-                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3">
-                  <span class="text-sm text-slate-700">联系入口</span>
-                  <input type="checkbox" id="cfgContact" class="w-5 h-5">
-                </label>
-                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3">
-                  <span class="text-sm text-slate-700">举报</span>
-                  <input type="checkbox" id="cfgReport" class="w-5 h-5">
-                </label>
-                <label class="flex items-center justify-between border border-slate-200 rounded-lg px-4 py-3">
-                  <span class="text-sm text-slate-700">分享</span>
-                  <input type="checkbox" id="cfgShare" class="w-5 h-5">
-                </label>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary">保存配置</button>
-          </form>
-        </div>
-      </div>
     </div>
-  </main>
-</div>
 
-<!-- Job Modal -->
-<div id="jobModal" class="modal-overlay">
-  <div class="bg-white rounded-xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl m-4">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-      <h3 id="jobModalTitle" class="text-lg font-semibold text-slate-900">新增岗位</h3>
-      <button onclick="closeJobModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
-    </div>
-    <form id="jobForm" class="px-6 py-5 space-y-5">
-      <input type="hidden" id="jobId">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">岗位名称 *</label>
-          <input id="jobTitle" type="text" required class="w-full">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">公司名称 *</label>
-          <input id="jobCompany" type="text" required class="w-full">
-        </div>
-        <div class="relative md:col-span-2">
-          <label class="block text-sm font-medium text-slate-700 mb-1">国家 *</label>
-          <input id="jobCountrySearch" type="text" required class="w-full" placeholder="点击选择或输入搜索国家代码/中文..." autocomplete="off" oninput="filterCountries(this.value)" onclick="showAllCountries()">
-          <input type="hidden" id="jobCountryCode">
-          <div id="countryDropdown" class="hidden absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg max-h-80 overflow-y-auto w-full mt-1"></div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">城市</label>
-          <input id="jobCity" type="text" class="w-full">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">薪资 *</label>
-          <input id="jobSalary" type="text" required class="w-full" placeholder="如：35k-50k 或 $5000/month">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">工作类型</label>
-          <select id="jobType" class="w-full">
-            <option value="full_time">全职</option>
-            <option value="part_time">兼职</option>
-            <option value="contract">合同</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">联系平台</label>
-          <select id="jobContactType" class="w-full">
-            <option value="whatsapp">WhatsApp</option>
-            <option value="telegram">Telegram</option>
-            <option value="email">Email</option>
-            <option value="link">链接</option>
-          </select>
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-slate-700 mb-1">联系链接 *</label>
-          <input id="jobContactLink" type="text" required class="w-full">
-        </div>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">岗位描述</label>
-        <textarea id="jobDescription" rows="4" class="w-full"></textarea>
-      </div>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button" onclick="closeJobModal()" class="btn btn-secondary">取消</button>
-        <button type="submit" class="btn btn-primary">保存</button>
-      </div>
-    </form>
-  </div>
-</div>
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
 
-<div id="toast" class="toast"></div>
+    <script>
+        const API_BASE = 'https://gpt-jobs-api-mujotqfwaa-de.a.run.app';
+        
+        // 检查 API 状态
+        async function checkApiStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/api/countries`);
+                const data = await res.json();
+                document.getElementById('apiStatus').textContent = data.code === 200 ? '✅ API 正常' : '❌ API 异常';
+                document.getElementById('apiStatus').style.color = data.code === 200 ? '#4CAF50' : '#f44336';
+            } catch (e) {
+                document.getElementById('apiStatus').textContent = '❌ API 连接失败';
+                document.getElementById('apiStatus').style.color = '#f44336';
+            }
+        }
 
-<script>
-const API_BASE = '/api';
+        // 切换标签
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Panel').classList.add('active');
+            
+            if (tab === 'jobs') refreshJobs();
+            if (tab === 'stats') loadStats();
+        }
 
-// 全球所有国家数据（按地区分组）
-const COUNTRIES = [
-  // 亚洲
-  { code: "CN", name: "中国", pinyin: "zhongguo", en: "China", region: "亚洲" },
-  { code: "JP", name: "日本", pinyin: "riben", en: "Japan", region: "亚洲" },
-  { code: "KR", name: "韩国", pinyin: "hanguo", en: "South Korea", region: "亚洲" },
-  { code: "SG", name: "新加坡", pinyin: "xinjiapo", en: "Singapore", region: "亚洲" },
-  { code: "PH", name: "菲律宾", pinyin: "feilvbin", en: "Philippines", region: "亚洲" },
-  { code: "ID", name: "印尼", pinyin: "yinni", en: "Indonesia", region: "亚洲" },
-  { code: "TH", name: "泰国", pinyin: "taiguo", en: "Thailand", region: "亚洲" },
-  { code: "VN", name: "越南", pinyin: "yuenan", en: "Vietnam", region: "亚洲" },
-  { code: "MY", name: "马来西亚", pinyin: "malaixiya", en: "Malaysia", region: "亚洲" },
-  { code: "IN", name: "印度", pinyin: "yindu", en: "India", region: "亚洲" },
-  { code: "AE", name: "阿联酋", pinyin: "alianqiu", en: "UAE", region: "亚洲" },
-  { code: "SA", name: "沙特", pinyin: "shate", en: "Saudi Arabia", region: "亚洲" },
-  { code: "PK", name: "巴基斯坦", pinyin: "bajisitan", en: "Pakistan", region: "亚洲" },
-  { code: "BD", name: "孟加拉", pinyin: "mengjiala", en: "Bangladesh", region: "亚洲" },
-  { code: "LK", name: "斯里兰卡", pinyin: "sililanka", en: "Sri Lanka", region: "亚洲" },
-  { code: "NP", name: "尼泊尔", pinyin: "niboer", en: "Nepal", region: "亚洲" },
-  { code: "MM", name: "缅甸", pinyin: "miandian", en: "Myanmar", region: "亚洲" },
-  { code: "KH", name: "柬埔寨", pinyin: "jianpuzhai", en: "Cambodia", region: "亚洲" },
-  { code: "LA", name: "老挝", pinyin: "laowo", en: "Laos", region: "亚洲" },
-  { code: "BN", name: "文莱", pinyin: "wenlai", en: "Brunei", region: "亚洲" },
-  { code: "TW", name: "台湾", pinyin: "taiwan", en: "Taiwan", region: "亚洲" },
-  { code: "HK", name: "香港", pinyin: "xianggang", en: "Hong Kong", region: "亚洲" },
-  { code: "MO", name: "澳门", pinyin: "aomen", en: "Macao", region: "亚洲" },
-  { code: "MN", name: "蒙古", pinyin: "menggu", en: "Mongolia", region: "亚洲" },
-  { code: "KP", name: "朝鲜", pinyin: "chaoxian", en: "North Korea", region: "亚洲" },
-  { code: "KZ", name: "哈萨克斯坦", pinyin: "hasakesitan", en: "Kazakhstan", region: "亚洲" },
-  { code: "UZ", name: "乌兹别克斯坦", pinyin: "wuzibiekesitan", en: "Uzbekistan", region: "亚洲" },
-  { code: "KG", name: "吉尔吉斯斯坦", pinyin: "jierjisisitan", en: "Kyrgyzstan", region: "亚洲" },
-  { code: "TJ", name: "塔吉克斯坦", pinyin: "tajikesitan", en: "Tajikistan", region: "亚洲" },
-  { code: "TM", name: "土库曼斯坦", pinyin: "tukumansitan", en: "Turkmenistan", region: "亚洲" },
-  { code: "AF", name: "阿富汗", pinyin: "afuhan", en: "Afghanistan", region: "亚洲" },
-  { code: "IR", name: "伊朗", pinyin: "yilang", en: "Iran", region: "亚洲" },
-  { code: "IQ", name: "伊拉克", pinyin: "yilake", en: "Iraq", region: "亚洲" },
-  { code: "SY", name: "叙利亚", pinyin: "xuliya", en: "Syria", region: "亚洲" },
-  { code: "JO", name: "约旦", pinyin: "yuedan", en: "Jordan", region: "亚洲" },
-  { code: "LB", name: "黎巴嫩", pinyin: "libanen", en: "Lebanon", region: "亚洲" },
-  { code: "IL", name: "以色列", pinyin: "yiselie", en: "Israel", region: "亚洲" },
-  { code: "PS", name: "巴勒斯坦", pinyin: "baleisitan", en: "Palestine", region: "亚洲" },
-  { code: "YE", name: "也门", pinyin: "yemen", en: "Yemen", region: "亚洲" },
-  { code: "OM", name: "阿曼", pinyin: "aman", en: "Oman", region: "亚洲" },
-  { code: "QA", name: "卡塔尔", pinyin: "kataer", en: "Qatar", region: "亚洲" },
-  { code: "BH", name: "巴林", pinyin: "balin", en: "Bahrain", region: "亚洲" },
-  { code: "KW", name: "科威特", pinyin: "keweite", en: "Kuwait", region: "亚洲" },
-  { code: "GE", name: "格鲁吉亚", pinyin: "gelujiya", en: "Georgia", region: "亚洲" },
-  { code: "AM", name: "亚美尼亚", pinyin: "yameiniya", en: "Armenia", region: "亚洲" },
-  { code: "AZ", name: "阿塞拜疆", pinyin: "asaibaijiang", en: "Azerbaijan", region: "亚洲" },
-  { code: "TR", name: "土耳其", pinyin: "tuerqi", en: "Turkey", region: "亚洲" },
-  { code: "CY", name: "塞浦路斯", pinyin: "saipulusi", en: "Cyprus", region: "亚洲" },
-  { code: "MV", name: "马尔代夫", pinyin: "maerdaifu", en: "Maldives", region: "亚洲" },
-  { code: "BT", name: "不丹", pinyin: "budan", en: "Bhutan", region: "亚洲" },
-  { code: "TL", name: "东帝汶", pinyin: "dongdiwen", en: "Timor-Leste", region: "亚洲" },
-  { code: "KG", name: "吉尔吉斯", pinyin: "jierjisi", en: "Kyrgyzstan", region: "亚洲" },
-  
-  // 欧洲
-  { code: "GB", name: "英国", pinyin: "yingguo", en: "United Kingdom", region: "欧洲" },
-  { code: "DE", name: "德国", pinyin: "deguo", en: "Germany", region: "欧洲" },
-  { code: "FR", name: "法国", pinyin: "faguo", en: "France", region: "欧洲" },
-  { code: "IT", name: "意大利", pinyin: "yidali", en: "Italy", region: "欧洲" },
-  { code: "ES", name: "西班牙", pinyin: "xibanya", en: "Spain", region: "欧洲" },
-  { code: "NL", name: "荷兰", pinyin: "helan", en: "Netherlands", region: "欧洲" },
-  { code: "BE", name: "比利时", pinyin: "bilishi", en: "Belgium", region: "欧洲" },
-  { code: "CH", name: "瑞士", pinyin: "ruishi", en: "Switzerland", region: "欧洲" },
-  { code: "AT", name: "奥地利", pinyin: "aodili", en: "Austria", region: "欧洲" },
-  { code: "SE", name: "瑞典", pinyin: "ruidian", en: "Sweden", region: "欧洲" },
-  { code: "NO", name: "挪威", pinyin: "nuowei", en: "Norway", region: "欧洲" },
-  { code: "DK", name: "丹麦", pinyin: "danmai", en: "Denmark", region: "欧洲" },
-  { code: "FI", name: "芬兰", pinyin: "fenlan", en: "Finland", region: "欧洲" },
-  { code: "PL", name: "波兰", pinyin: "bolan", en: "Poland", region: "欧洲" },
-  { code: "RU", name: "俄罗斯", pinyin: "eluosi", en: "Russia", region: "欧洲" },
-  { code: "UA", name: "乌克兰", pinyin: "wukelan", en: "Ukraine", region: "欧洲" },
-  { code: "CZ", name: "捷克", pinyin: "jieke", en: "Czech Republic", region: "欧洲" },
-  { code: "HU", name: "匈牙利", pinyin: "xiongyali", en: "Hungary", region: "欧洲" },
-  { code: "RO", name: "罗马尼亚", pinyin: "luomaniya", en: "Romania", region: "欧洲" },
-  { code: "BG", name: "保加利亚", pinyin: "baojialiya", en: "Bulgaria", region: "欧洲" },
-  { code: "GR", name: "希腊", pinyin: "xila", en: "Greece", region: "欧洲" },
-  { code: "PT", name: "葡萄牙", pinyin: "putaoya", en: "Portugal", region: "欧洲" },
-  { code: "IE", name: "爱尔兰", pinyin: "aierlan", en: "Ireland", region: "欧洲" },
-  { code: "IS", name: "冰岛", pinyin: "bingdao", en: "Iceland", region: "欧洲" },
-  { code: "LU", name: "卢森堡", pinyin: "lusenbao", en: "Luxembourg", region: "欧洲" },
-  { code: "MT", name: "马耳他", pinyin: "maerta", en: "Malta", region: "欧洲" },
-  { code: "SI", name: "斯洛文尼亚", pinyin: "siluowenniya", en: "Slovenia", region: "欧洲" },
-  { code: "SK", name: "斯洛伐克", pinyin: "siluofake", en: "Slovakia", region: "欧洲" },
-  { code: "HR", name: "克罗地亚", pinyin: "keluodiya", en: "Croatia", region: "欧洲" },
-  { code: "RS", name: "塞尔维亚", pinyin: "saierweiya", en: "Serbia", region: "欧洲" },
-  { code: "BA", name: "波黑", pinyin: "bohei", en: "Bosnia and Herzegovina", region: "欧洲" },
-  { code: "ME", name: "黑山", pinyin: "heishan", en: "Montenegro", region: "欧洲" },
-  { code: "AL", name: "阿尔巴尼亚", pinyin: "aerbaniya", en: "Albania", region: "欧洲" },
-  { code: "MK", name: "北马其顿", pinyin: "beimaqidun", en: "North Macedonia", region: "欧洲" },
-  { code: "BY", name: "白俄罗斯", pinyin: "baieluosi", en: "Belarus", region: "欧洲" },
-  { code: "MD", name: "摩尔多瓦", pinyin: "moerduowa", en: "Moldova", region: "欧洲" },
-  { code: "LT", name: "立陶宛", pinyin: "litaowan", en: "Lithuania", region: "欧洲" },
-  { code: "LV", name: "拉脱维亚", pinyin: "latuoweiya", en: "Latvia", region: "欧洲" },
-  { code: "EE", name: "爱沙尼亚", pinyin: "aishaniya", en: "Estonia", region: "欧洲" },
-  { code: "AD", name: "安道尔", pinyin: "andaoer", en: "Andorra", region: "欧洲" },
-  { code: "MC", name: "摩纳哥", pinyin: "monage", en: "Monaco", region: "欧洲" },
-  { code: "LI", name: "列支敦士登", pinyin: "liezhidunshideng", en: "Liechtenstein", region: "欧洲" },
-  { code: "SM", name: "圣马力诺", pinyin: "shengmalinuo", en: "San Marino", region: "欧洲" },
-  { code: "VA", name: "梵蒂冈", pinyin: "fandigang", en: "Vatican City", region: "欧洲" },
-  
-  // 北美洲
-  { code: "US", name: "美国", pinyin: "meiguo", en: "United States", region: "北美洲" },
-  { code: "CA", name: "加拿大", pinyin: "jianada", en: "Canada", region: "北美洲" },
-  { code: "MX", name: "墨西哥", pinyin: "moxige", en: "Mexico", region: "北美洲" },
-  { code: "CU", name: "古巴", pinyin: "guba", en: "Cuba", region: "北美洲" },
-  { code: "JM", name: "牙买加", pinyin: "yamaijia", en: "Jamaica", region: "北美洲" },
-  { code: "HT", name: "海地", pinyin: "haidi", en: "Haiti", region: "北美洲" },
-  { code: "DO", name: "多米尼加", pinyin: "duominijia", en: "Dominican Republic", region: "北美洲" },
-  { code: "PA", name: "巴拿马", pinyin: "banama", en: "Panama", region: "北美洲" },
-  { code: "CR", name: "哥斯达黎加", pinyin: "gesidalijia", en: "Costa Rica", region: "北美洲" },
-  { code: "GT", name: "危地马拉", pinyin: "weidimala", en: "Guatemala", region: "北美洲" },
-  { code: "HN", name: "洪都拉斯", pinyin: "hongdulas", en: "Honduras", region: "北美洲" },
-  { code: "SV", name: "萨尔瓦多", pinyin: "saerwaduo", en: "El Salvador", region: "北美洲" },
-  { code: "NI", name: "尼加拉瓜", pinyin: "nijialagua", en: "Nicaragua", region: "北美洲" },
-  { code: "BZ", name: "伯利兹", pinyin: "bolizi", en: "Belize", region: "北美洲" },
-  { code: "BS", name: "巴哈马", pinyin: "bahama", en: "Bahamas", region: "北美洲" },
-  { code: "BB", name: "巴巴多斯", pinyin: "babaduosi", en: "Barbados", region: "北美洲" },
-  { code: "TT", name: "特立尼达和多巴哥", pinyin: "telinida", en: "Trinidad and Tobago", region: "北美洲" },
-  { code: "GD", name: "格林纳达", pinyin: "gelinnada", en: "Grenada", region: "北美洲" },
-  { code: "LC", name: "圣卢西亚", pinyin: "shengluxiya", en: "Saint Lucia", region: "北美洲" },
-  { code: "VC", name: "圣文森特", pinyin: "shengwensente", en: "Saint Vincent", region: "北美洲" },
-  { code: "AG", name: "安提瓜", pinyin: "antigua", en: "Antigua and Barbuda", region: "北美洲" },
-  { code: "KN", name: "圣基茨", pinyin: "shengjici", en: "Saint Kitts", region: "北美洲" },
-  { code: "DM", name: "多米尼克", pinyin: "duominike", en: "Dominica", region: "北美洲" },
-  
-  // 南美洲
-  { code: "BR", name: "巴西", pinyin: "baxi", en: "Brazil", region: "南美洲" },
-  { code: "AR", name: "阿根廷", pinyin: "agenting", en: "Argentina", region: "南美洲" },
-  { code: "CL", name: "智利", pinyin: "lizhi", en: "Chile", region: "南美洲" },
-  { code: "CO", name: "哥伦比亚", pinyin: "gelunbiya", en: "Colombia", region: "南美洲" },
-  { code: "PE", name: "秘鲁", pinyin: "bilu", en: "Peru", region: "南美洲" },
-  { code: "VE", name: "委内瑞拉", pinyin: "weineiruila", en: "Venezuela", region: "南美洲" },
-  { code: "EC", name: "厄瓜多尔", pinyin: "eguaduoer", en: "Ecuador", region: "南美洲" },
-  { code: "UY", name: "乌拉圭", pinyin: "wulagui", en: "Uruguay", region: "南美洲" },
-  { code: "PY", name: "巴拉圭", pinyin: "balagui", en: "Paraguay", region: "南美洲" },
-  { code: "BO", name: "玻利维亚", pinyin: "boliweiya", en: "Bolivia", region: "南美洲" },
-  { code: "GY", name: "圭亚那", pinyin: "guiyana", en: "Guyana", region: "南美洲" },
-  { code: "SR", name: "苏里南", pinyin: "sulinan", en: "Suriname", region: "南美洲" },
-  { code: "GF", name: "法属圭亚那", pinyin: "fazhuguiyana", en: "French Guiana", region: "南美洲" },
-  
-  // 非洲
-  { code: "ZA", name: "南非", pinyin: "nanfei", en: "South Africa", region: "非洲" },
-  { code: "EG", name: "埃及", pinyin: "aiji", en: "Egypt", region: "非洲" },
-  { code: "NG", name: "尼日利亚", pinyin: "niriliya", en: "Nigeria", region: "非洲" },
-  { code: "KE", name: "肯尼亚", pinyin: "kenniya", en: "Kenya", region: "非洲" },
-  { code: "ET", name: "埃塞俄比亚", pinyin: "saieweibiya", en: "Ethiopia", region: "非洲" },
-  { code: "TZ", name: "坦桑尼亚", pinyin: "tansangniya", en: "Tanzania", region: "非洲" },
-  { code: "UG", name: "乌干达", pinyin: "wuganda", en: "Uganda", region: "非洲" },
-  { code: "GH", name: "加纳", pinyin: "jiana", en: "Ghana", region: "非洲" },
-  { code: "MA", name: "摩洛哥", pinyin: "moluoge", en: "Morocco", region: "非洲" },
-  { code: "DZ", name: "阿尔及利亚", pinyin: "aerjiliya", en: "Algeria", region: "非洲" },
-  { code: "TN", name: "突尼斯", pinyin: "tunisi", en: "Tunisia", region: "非洲" },
-  { code: "LY", name: "利比亚", pinyin: "libiya", en: "Libya", region: "非洲" },
-  { code: "SD", name: "苏丹", pinyin: "sudan", en: "Sudan", region: "非洲" },
-  { code: "SN", name: "塞内加尔", pinyin: "saineijiaer", en: "Senegal", region: "非洲" },
-  { code: "ML", name: "马里", pinyin: "mali", en: "Mali", region: "非洲" },
-  { code: "BF", name: "布基纳法索", pinyin: "bujinafasuo", en: "Burkina Faso", region: "非洲" },
-  { code: "GN", name: "几内亚", pinyin: "jineiya", en: "Guinea", region: "非洲" },
-  { code: "SL", name: "塞拉利昂", pinyin: "sailaliang", en: "Sierra Leone", region: "非洲" },
-  { code: "LR", name: "利比里亚", pinyin: "libiliya", en: "Liberia", region: "非洲" },
-  { code: "CI", name: "科特迪瓦", pinyin: "ketediwa", en: "Ivory Coast", region: "非洲" },
-  { code: "TG", name: "多哥", pinyin: "duoge", en: "Togo", region: "非洲" },
-  { code: "BJ", name: "贝宁", pinyin: "beining", en: "Benin", region: "非洲" },
-  { code: "NE", name: "尼日尔", pinyin: "nirite", en: "Niger", region: "非洲" },
-  { code: "CM", name: "喀麦隆", pinyin: "kamailong", en: "Cameroon", region: "非洲" },
-  { code: "CF", name: "中非", pinyin: "zhongfei", en: "Central African Republic", region: "非洲" },
-  { code: "TD", name: "乍得", pinyin: "zhade", en: "Chad", region: "非洲" },
-  { code: "CD", name: "刚果(金)", pinyin: "gangguojin", en: "DR Congo", region: "非洲" },
-  { code: "CG", name: "刚果(布)", pinyin: "gangguobu", en: "Congo", region: "非洲" },
-  { code: "GA", name: "加蓬", pinyin: "jiapeng", en: "Gabon", region: "非洲" },
-  { code: "GQ", name: "赤道几内亚", pinyin: "chidaojineiya", en: "Equatorial Guinea", region: "非洲" },
-  { code: "ST", name: "圣多美", pinyin: "shengduomei", en: "Sao Tome", region: "非洲" },
-  { code: "GW", name: "几内亚比绍", pinyin: "jineiyabishao", en: "Guinea-Bissau", region: "非洲" },
-  { code: "GM", name: "冈比亚", pinyin: "gangbiya", en: "Gambia", region: "非洲" },
-  { code: "CV", name: "佛得角", pinyin: "fodejiao", en: "Cape Verde", region: "非洲" },
-  { code: "MR", name: "毛里塔尼亚", pinyin: "maolitaniya", en: "Mauritania", region: "非洲" },
-  { code: "EH", name: "西撒哈拉", pinyin: "xisahala", en: "Western Sahara", region: "非洲" },
-  { code: "ER", name: "厄立特里亚", pinyin: "eliteliya", en: "Eritrea", region: "非洲" },
-  { code: "DJ", name: "吉布提", pinyin: "jibuti", en: "Djibouti", region: "非洲" },
-  { code: "SO", name: "索马里", pinyin: "suomali", en: "Somalia", region: "非洲" },
-  { code: "RW", name: "卢旺达", pinyin: "luwangda", en: "Rwanda", region: "非洲" },
-  { code: "BI", name: "布隆迪", pinyin: "bulongdi", en: "Burundi", region: "非洲" },
-  { code: "MW", name: "马拉维", pinyin: "malawei", en: "Malawi", region: "非洲" },
-  { code: "MZ", name: "莫桑比克", pinyin: "mosangbike", en: "Mozambique", region: "非洲" },
-  { code: "ZM", name: "赞比亚", pinyin: "zanbiya", en: "Zambia", region: "非洲" },
-  { code: "ZW", name: "津巴布韦", pinyin: "jinbabuwei", en: "Zimbabwe", region: "非洲" },
-  { code: "BW", name: "博茨瓦纳", pinyin: "bociwana", en: "Botswana", region: "非洲" },
-  { code: "NA", name: "纳米比亚", pinyin: "namibiya", en: "Namibia", region: "非洲" },
-  { code: "AO", name: "安哥拉", pinyin: "angela", en: "Angola", region: "非洲" },
-  { code: "LS", name: "莱索托", pinyin: "laisuotuo", en: "Lesotho", region: "非洲" },
-  { code: "SZ", name: "斯威士兰", pinyin: "siweishilan", en: "Eswatini", region: "非洲" },
-  { code: "MG", name: "马达加斯加", pinyin: "madajiasijia", en: "Madagascar", region: "非洲" },
-  { code: "MU", name: "毛里求斯", pinyin: "maoliqiusi", en: "Mauritius", region: "非洲" },
-  { code: "KM", name: "科摩罗", pinyin: "kemoluo", en: "Comoros", region: "非洲" },
-  { code: "SC", name: "塞舌尔", pinyin: "saisheer", en: "Seychelles", region: "非洲" },
-  
-  // 大洋洲
-  { code: "AU", name: "澳大利亚", pinyin: "aodaliya", en: "Australia", region: "大洋洲" },
-  { code: "NZ", name: "新西兰", pinyin: "xinxilan", en: "New Zealand", region: "大洋洲" },
-  { code: "PG", name: "巴布亚新几内亚", pinyin: "babuyaxinjineiya", en: "Papua New Guinea", region: "大洋洲" },
-  { code: "FJ", name: "斐济", pinyin: "feiji", en: "Fiji", region: "大洋洲" },
-  { code: "SB", name: "所罗门群岛", pinyin: "suoluomenqundao", en: "Solomon Islands", region: "大洋洲" },
-  { code: "VU", name: "瓦努阿图", pinyin: "wanuat", en: "Vanuatu", region: "大洋洲" },
-  { code: "NC", name: "新喀里多尼亚", pinyin: "xinkaliduoniya", en: "New Caledonia", region: "大洋洲" },
-  { code: "PF", name: "法属波利尼西亚", pinyin: "fazhubolinixiya", en: "French Polynesia", region: "大洋洲" },
-  { code: "WS", name: "萨摩亚", pinyin: "samoya", en: "Samoa", region: "大洋洲" },
-  { code: "TO", name: "汤加", pinyin: "tangjia", en: "Tonga", region: "大洋洲" },
-  { code: "KI", name: "基里巴斯", pinyin: "jilibasi", en: "Kiribati", region: "大洋洲" },
-  { code: "NR", name: "瑙鲁", pinyin: "naolu", en: "Nauru", region: "大洋洲" },
-  { code: "TV", name: "图瓦卢", pinyin: "tuwalu", en: "Tuvalu", region: "大洋洲" },
-  { code: "PW", name: "帕劳", pinyin: "palao", en: "Palau", region: "大洋洲" },
-  { code: "MH", name: "马绍尔群岛", pinyin: "mashaoerqundao", en: "Marshall Islands", region: "大洋洲" },
-  { code: "FM", name: "密克罗尼西亚", pinyin: "mikeluonixiya", en: "Micronesia", region: "大洋洲" },
-  { code: "CK", name: "库克群岛", pinyin: "kukequndao", en: "Cook Islands", region: "大洋洲" },
-  { code: "NU", name: "纽埃", pinyin: "niuai", en: "Niue", region: "大洋洲" },
-  { code: "TK", name: "托克劳", pinyin: "tuokelao", en: "Tokelau", region: "大洋洲" },
-  { code: "WF", name: "瓦利斯", pinyin: "walisi", en: "Wallis", region: "大洋洲" },
-  { code: "AS", name: "美属萨摩亚", pinyin: "meishusamoya", en: "American Samoa", region: "大洋洲" },
-  { code: "GU", name: "关岛", pinyin: "guandao", en: "Guam", region: "大洋洲" },
-  { code: "MP", name: "北马里亚纳", pinyin: "beimaliyana", en: "Northern Mariana", region: "大洋洲" },
-];
+        // 加载岗位列表
+        async function refreshJobs() {
+            const tbody = document.getElementById('jobsTable');
+            tbody.innerHTML = '<tr><td colspan="6" class="empty">加载中...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/jobs`);
+                const data = await res.json();
+                
+                if (data.code !== 200 || !data.data.list.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty">暂无岗位数据</td></tr>';
+                    return;
+                }
 
-async function api(url, opts = {}) {
-  const res = await fetch(API_BASE + url, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  const data = await res.json();
-  if (data.code !== 200 && data.code !== 0) throw new Error(data.message);
-  return data;
-}
+                tbody.innerHTML = data.data.list.map(job => `
+                    <tr>
+                        <td>${job.title}</td>
+                        <td>${job.company_name}</td>
+                        <td>${job.country}</td>
+                        <td>${job.salary}</td>
+                        <td><span class="badge badge-${job.status}">${job.status}</span></td>
+                        <td class="actions">
+                            <button class="btn btn-primary" onclick="editJob('${job.id}')">编辑</button>
+                            <button class="btn btn-danger" onclick="deleteJob('${job.id}')">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty">加载失败: ${e.message}</td></tr>`;
+            }
+        }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+        // 创建岗位
+        async function handleCreate(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = Object.fromEntries(new FormData(form));
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/jobs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.code === 200) {
+                    showToast('✅ 岗位发布成功！', 'success');
+                    form.reset();
+                    showTab('jobs');
+                    refreshJobs();
+                } else {
+                    showToast('❌ ' + (result.message || '发布失败'), 'error');
+                }
+            } catch (e) {
+                showToast('❌ 网络错误: ' + e.message, 'error');
+            }
+        }
 
-function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  document.querySelectorAll('.sidebar-link').forEach(n => n.classList.remove('active'));
-  document.querySelector('.sidebar-link[data-tab="' + name + '"]').classList.add('active');
-  const titles = { review: '审核中心', jobs: '岗位管理', reports: '举报处理', analytics: '数据统计', config: '应用配置' };
-  document.getElementById('pageTitle').textContent = titles[name];
-  if (name === 'review') loadReviews();
-  if (name === 'jobs') loadJobs();
-  if (name === 'reports') loadReports();
-  if (name === 'analytics') initAnalytics();
-  if (name === 'config') loadConfig();
-}
+        // 删除岗位
+        async function deleteJob(id) {
+            if (!confirm('确定删除该岗位？')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/jobs/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                
+                if (result.code === 200) {
+                    showToast('✅ 删除成功', 'success');
+                    refreshJobs();
+                } else {
+                    showToast('❌ 删除失败', 'error');
+                }
+            } catch (e) {
+                showToast('❌ 网络错误', 'error');
+            }
+        }
 
-// Reviews
-async function loadReviews() {
-  const data = await api('/admin/jobs?status=pending');
-  const list = data.data?.list || [];
-  document.getElementById('reviewTable').innerHTML = list.map(j => `
-    <tr class="hover:bg-slate-50">
-      <td class="px-6 py-4"><div class="font-medium text-slate-900">${j.title}</div><div class="text-sm text-slate-500">${j.company}</div></td>
-      <td class="px-6 py-4 text-sm text-slate-600">${j.country} ${j.city || ''}</td>
-      <td class="px-6 py-4 text-sm text-slate-600">${j.salary}</td>
-      <td class="px-6 py-4 text-sm text-slate-500">${new Date(j.created_at).toLocaleDateString()}</td>
-      <td class="px-6 py-4 text-right">
-        <button onclick="reviewJob('${j.id}', 'approve')" class="text-green-600 mr-2">通过</button>
-        <button onclick="reviewJob('${j.id}', 'reject')" class="text-red-600">拒绝</button>
-      </td>
-    </tr>
-  `).join('');
-  document.getElementById('reviewStat').textContent = list.length + ' 条';
-}
+        // 加载统计
+        async function loadStats() {
+            const container = document.getElementById('statsContent');
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/stats`);
+                const data = await res.json();
+                
+                if (data.code === 200) {
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                            <div class="card" style="text-align: center;">
+                                <div style="font-size: 32px; color: #2196F3; font-weight: bold;">${data.data.total_jobs || 0}</div>
+                                <div>总岗位数</div>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <div style="font-size: 32px; color: #4CAF50; font-weight: bold;">${data.data.active_jobs || 0}</div>
+                                <div>在线岗位</div>
+                            </div>
+                            <div class="card" style="text-align: center;">
+                                <div style="font-size: 32px; color: #ff9800; font-weight: bold;">${data.data.total_views || 0}</div>
+                                <div>总浏览</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<div class="empty">暂无统计数据</div>';
+                }
+            } catch (e) {
+                container.innerHTML = `<div class="empty">加载失败: ${e.message}</div>`;
+            }
+        }
 
-async function reviewJob(id, action) {
-  await api('/admin/jobs/' + id + '/review', { method: 'POST', body: JSON.stringify({ action }) });
-  showToast(action === 'approve' ? '已通过' : '已拒绝');
-  loadReviews();
-  loadJobs();
-}
+        // 显示 Toast
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
 
-// Jobs
-let allJobs = [];
-async function loadJobs() {
-  const data = await api('/admin/jobs?page_size=100');
-  allJobs = data.data?.list || [];
-  renderJobs();
-  populateCountryFilter();
-}
-
-function populateCountryFilter() {
-  const sel = document.getElementById('jobFilterCountry');
-  const codes = [...new Set(allJobs.map(j => j.country).filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">全部国家</option>' + codes.map(c => `<option value="${c}">${c}</option>`).join('');
-}
-
-function renderJobs() {
-  const term = document.getElementById('jobSearch').value.toLowerCase();
-  const c = document.getElementById('jobFilterCountry').value;
-  const s = document.getElementById('jobFilterStatus').value;
-  const filtered = allJobs.filter(j => {
-    if (c && j.country !== c) return false;
-    if (s && j.status !== s) return false;
-    if (term && !j.title.toLowerCase().includes(term)) return false;
-    return true;
-  });
-  const stMap = { active: { cls: 'bg-emerald-50 text-emerald-700', txt: '上架' }, pending: { cls: 'bg-amber-50 text-amber-700', txt: '待审核' }, banned: { cls: 'bg-rose-50 text-rose-700', txt: '下架' }, rejected: { cls: 'bg-slate-50 text-slate-600', txt: '已拒绝' } };
-  document.getElementById('jobTable').innerHTML = filtered.map(j => {
-    const st = stMap[j.status] || { cls: 'bg-slate-50', txt: j.status };
-    return `
-    <tr class="hover:bg-slate-50">
-      <td class="px-6 py-4"><div class="font-medium text-slate-900">${j.title}</div><div class="text-sm text-slate-500">${j.company}</div></td>
-      <td class="px-6 py-4 text-sm text-slate-600">${j.country} ${j.city || ''}</td>
-      <td class="px-6 py-4"><span class="badge ${st.cls}">${st.txt}</span></td>
-      <td class="px-6 py-4 text-right">
-        <button onclick="editJob('${j.id}')" class="text-blue-600 mr-2">编辑</button>
-        <button onclick="deleteJob('${j.id}')" class="text-red-600">删除</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// Country Dropdown - Show all countries by default with region grouping
-function showAllCountries() {
-  const dropdown = document.getElementById('countryDropdown');
-  const regions = [...new Set(COUNTRIES.map(c => c.region))];
-  
-  let html = '';
-  regions.forEach(region => {
-    const regionCountries = COUNTRIES.filter(c => c.region === region);
-    html += `<div class="country-group">
-      <div class="country-group-header">${region}</div>
-      ${regionCountries.map(c => `
-        <div onclick="selectCountry('${c.code}', '${c.name}')" class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex justify-between items-center">
-          <span class="font-medium">${c.name}</span>
-          <span class="text-slate-400 text-sm">${c.code}</span>
-        </div>
-      `).join('')}
-    </div>`;
-  });
-  
-  dropdown.innerHTML = html;
-  dropdown.classList.remove('hidden');
-}
-
-// Filter countries by query (name, pinyin, or code)
-function filterCountries(query) {
-  const dropdown = document.getElementById('countryDropdown');
-  const q = query.toLowerCase().trim();
-  
-  // If empty, show all
-  if (!q) {
-    showAllCountries();
-    return;
-  }
-  
-  const matches = COUNTRIES.filter(c => 
-    c.name.toLowerCase().includes(q) || 
-    c.pinyin.includes(q) || 
-    c.code.toLowerCase().includes(q) ||
-    c.en.toLowerCase().includes(q)
-  );
-  
-  if (matches.length === 0) {
-    dropdown.innerHTML = `<div class="px-4 py-3 text-slate-400 text-sm">未找到匹配的国家</div>`;
-    dropdown.classList.remove('hidden');
-    return;
-  }
-  
-  // Group matches by region
-  const regions = [...new Set(matches.map(c => c.region))];
-  let html = '';
-  regions.forEach(region => {
-    const regionCountries = matches.filter(c => c.region === region);
-    html += `<div class="country-group">
-      <div class="country-group-header">${region}</div>
-      ${regionCountries.map(c => `
-        <div onclick="selectCountry('${c.code}', '${c.name}')" class="px-4 py-2 hover:bg-slate-100 cursor-pointer flex justify-between items-center">
-          <span class="font-medium">${c.name}</span>
-          <span class="text-slate-400 text-sm">${c.code}</span>
-        </div>
-      `).join('')}
-    </div>`;
-  });
-  
-  dropdown.innerHTML = html;
-  dropdown.classList.remove('hidden');
-}
-
-function selectCountry(code, name) {
-  document.getElementById('jobCountrySearch').value = name;
-  document.getElementById('jobCountryCode').value = code;
-  document.getElementById('countryDropdown').classList.add('hidden');
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
-  const container = document.querySelector('#jobForm .relative');
-  if (container && !container.contains(e.target)) {
-    document.getElementById('countryDropdown').classList.add('hidden');
-  }
-});
-
-function openJobModal() {
-  document.getElementById('jobModal').classList.add('open');
-  document.getElementById('jobForm').reset();
-  document.getElementById('jobId').value = '';
-  document.getElementById('jobModalTitle').textContent = '新增岗位';
-  document.getElementById('jobCountryCode').value = '';
-  document.getElementById('countryDropdown').classList.add('hidden');
-}
-
-function closeJobModal() {
-  document.getElementById('jobModal').classList.remove('open');
-  document.getElementById('countryDropdown').classList.add('hidden');
-}
-
-function editJob(id) {
-  const j = allJobs.find(x => x.id === id);
-  if (!j) return;
-  openJobModal();
-  document.getElementById('jobId').value = j.id;
-  document.getElementById('jobTitle').value = j.title;
-  document.getElementById('jobCompany').value = j.company;
-  document.getElementById('jobCountrySearch').value = j.country;
-  document.getElementById('jobCountryCode').value = j.country;
-  document.getElementById('jobCity').value = j.city || '';
-  document.getElementById('jobSalary').value = j.salary;
-  document.getElementById('jobType').value = j.job_type || 'full_time';
-  document.getElementById('jobContactType').value = j.contact_platform || 'whatsapp';
-  document.getElementById('jobContactLink').value = j.contact_link;
-  document.getElementById('jobDescription').value = j.description || '';
-  document.getElementById('jobModalTitle').textContent = '编辑岗位';
-}
-
-async function deleteJob(id) {
-  if (!confirm('确定删除该岗位？')) return;
-  await api('/admin/jobs/' + id, { method: 'DELETE' });
-  showToast('已删除');
-  loadJobs();
-}
-
-document.getElementById('jobForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const id = document.getElementById('jobId').value;
-  const body = {
-    title: document.getElementById('jobTitle').value,
-    company: document.getElementById('jobCompany').value,
-    country: document.getElementById('jobCountryCode').value || document.getElementById('jobCountrySearch').value,
-    city: document.getElementById('jobCity').value,
-    salary: document.getElementById('jobSalary').value,
-    job_type: document.getElementById('jobType').value,
-    contact_platform: document.getElementById('jobContactType').value,
-    contact_link: document.getElementById('jobContactLink').value,
-    description: document.getElementById('jobDescription').value,
-    status: 'active'
-  };
-  if (id) {
-    await api('/admin/jobs/' + id, { method: 'PATCH', body: JSON.stringify(body) });
-  } else {
-    await api('/admin/jobs', { method: 'POST', body: JSON.stringify(body) });
-  }
-  showToast(id ? '已更新' : '已创建');
-  closeJobModal();
-  loadJobs();
-});
-
-// Reports
-let reportFilter = '';
-async function loadReports() {
-  const data = await api('/admin/reports');
-  let list = data.data || [];
-  if (reportFilter) list = list.filter(r => r.status === reportFilter);
-  document.getElementById('reportTable').innerHTML = list.map(r => `
-    <tr class="hover:bg-slate-50">
-      <td class="px-6 py-4 text-sm">${r.type}</td>
-      <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title="${r.reason}">${r.reason || '-'}</td>
-      <td class="px-6 py-4 text-xs text-blue-600">${r.job_id || '-'}</td>
-      <td class="px-6 py-4"><span class="badge ${r.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-600'}">${r.status}</span></td>
-      <td class="px-6 py-4 text-right">
-        ${r.status === 'pending' ? `<button onclick="handleReport('${r.id}', 'resolve')" class="text-green-600 mr-2">处理</button><button onclick="handleReport('${r.id}', 'dismiss')" class="text-slate-400">忽略</button>` : '<span class="text-slate-400 text-xs">已处理</span>'}
-      </td>
-    </tr>
-  `).join('');
-}
-
-function setReportFilter(f) {
-  reportFilter = f;
-  loadReports();
-}
-
-async function handleReport(id, action) {
-  if (!confirm('确定' + (action === 'resolve' ? '处理' : '忽略') + '该举报？')) return;
-  await api('/admin/reports/' + id + '/handle', { method: 'POST', body: JSON.stringify({ action }) });
-  showToast('举报已' + (action === 'resolve' ? '处理' : '忽略'));
-  loadReports();
-}
-
-// Analytics - Enhanced with per-country per-job stats
-function initAnalytics() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('analyticsStartDate').value = today;
-  document.getElementById('analyticsEndDate').value = today;
-  populateAnalyticsCountryFilter();
-  loadAnalytics();
-}
-
-function populateAnalyticsCountryFilter() {
-  const sel = document.getElementById('analyticsCountryFilter');
-  sel.innerHTML = '<option value="">所有国家</option>' + 
-    COUNTRIES.map(c => `<option value="${c.code}">${c.name}</option>`).join('');
-}
-
-async function loadAnalytics() {
-  const start = document.getElementById('analyticsStartDate').value;
-  const end = document.getElementById('analyticsEndDate').value;
-  const countryFilter = document.getElementById('analyticsCountryFilter').value;
-  
-  if (!start || !end) return;
-  
-  try {
-    // Load per-country per-job stats
-    const jobStatsUrl = '/admin/events/job-stats?start_date=' + start + '&end_date=' + end + 
-                       (countryFilter ? '&country=' + countryFilter : '');
-    const jobStatsData = await api(jobStatsUrl);
-    const jobStats = jobStatsData.data || [];
-    
-    renderJobStatsTable(jobStats);
-  } catch (e) {
-    console.error(e);
-    document.getElementById('analyticsContent').innerHTML = '<div class="text-center py-8 text-slate-400">加载数据失败</div>';
-  }
-}
-
-function renderJobStatsTable(jobStats) {
-  const container = document.getElementById('analyticsContent');
-  
-  if (!jobStats || !jobStats.jobs || jobStats.jobs.length === 0) {
-    container.innerHTML = '<div class="text-center py-8 text-slate-400">暂无数据</div>';
-    return;
-  }
-  
-  const jobs = jobStats.jobs;
-  
-  // Group by country
-  const byCountry = {};
-  jobs.forEach(stat => {
-    const countryCode = stat.country || '未知';
-    if (!byCountry[countryCode]) byCountry[countryCode] = [];
-    byCountry[countryCode].push(stat);
-  });
-  
-  let html = '<table class="analytics-table w-full text-sm">';
-  html += '<thead><tr><th style="width:15%">国家</th><th style="width:35%">岗位</th><th style="width:15%">浏览</th><th style="width:15%">详情</th><th style="width:15%">联系</th></tr></thead>';
-  html += '<tbody>';
-  
-  Object.keys(byCountry).sort().forEach(country => {
-    const countryStats = byCountry[country];
-    const countryName = COUNTRIES.find(c => c.code === country)?.name || country;
-    const rowCount = countryStats.length;
-    
-    countryStats.forEach((stat, index) => {
-      html += `<tr class="hover:bg-slate-50">`;
-      if (index === 0) {
-        html += `<td rowspan="${rowCount}" class="font-medium bg-slate-50 align-middle" style="border-bottom:1px solid #e2e8f0">${countryName}<br><span class="text-xs text-slate-400">${country}</span></td>`;
-      }
-      html += `
-        <td class="text-left py-3">${stat.job_title || '未知岗位'}<br><span class="text-xs text-slate-400">${stat.job_id}</span></td>
-        <td class="font-medium text-blue-600">${stat.job_list_view || 0}</td>
-        <td class="font-medium text-green-600">${stat.job_detail_open || 0}</td>
-        <td class="font-medium text-purple-600">${stat.job_contact_click || 0}</td>
-      </tr>`;
-    });
-  });
-  
-  html += '</tbody></table>';
-  html += `<div class="mt-4 text-xs text-slate-400">共 ${jobs.length} 个岗位数据</div>`;
-  container.innerHTML = html;
-}
-
-// Config
-async function loadConfig() {
-  try {
-    const data = await api('/app/config');
-    const cfg = data.data || {};
-    document.getElementById('cfgSearch').checked = cfg.search_enabled !== false;
-    document.getElementById('cfgFilter').checked = cfg.filter_enabled !== false;
-    document.getElementById('cfgContact').checked = cfg.contact_enabled !== false;
-    document.getElementById('cfgReport').checked = cfg.report_enabled !== false;
-    document.getElementById('cfgShare').checked = cfg.share_enabled !== false;
-  } catch (e) {}
-}
-
-document.getElementById('configForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const body = {
-    search_enabled: document.getElementById('cfgSearch').checked,
-    filter_enabled: document.getElementById('cfgFilter').checked,
-    contact_enabled: document.getElementById('cfgContact').checked,
-    report_enabled: document.getElementById('cfgReport').checked,
-    share_enabled: document.getElementById('cfgShare').checked
-  };
-  await api('/admin/configs', { method: 'POST', body: JSON.stringify(body) });
-  showToast('配置已保存');
-});
-
-// Init
-loadReviews();
-</script>
+        // 初始化
+        checkApiStatus();
+        refreshJobs();
+    </script>
 </body>
 </html>
